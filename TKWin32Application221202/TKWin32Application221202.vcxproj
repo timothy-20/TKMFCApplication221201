@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{e6ce0aab-047c-41c1-97d9-116dc5926e4b}</ProjectGuid>
-    <RootNamespace>TKMFCApplication221201</RootNamespace>
+    <ProjectGuid>{67de2072-29e7-403f-bd99-8e7feb340e79}</ProjectGuid>
+    <RootNamespace>TKWin32Application221202</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -44,7 +44,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <UseOfMfc>Dynamic</UseOfMfc>
+    <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -128,14 +128,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CMainFrame.h" />
-    <ClInclude Include="TKMainWindow.h" />
-    <ClInclude Include="TKMFCApplication.h" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="TKStringUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CMainFrame.cpp" />
-    <ClCompile Include="TKMainWindow.cpp" />
-    <ClCompile Include="TKMFCApplication.cpp" />
+    <ClInclude Include="TKStringUtils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

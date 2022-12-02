@@ -3,6 +3,7 @@
 
 class CMainFrame : public CFrameWnd
 {
-
+protected:
+	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 };
 

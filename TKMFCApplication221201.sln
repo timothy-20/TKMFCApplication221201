@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TKMFCApplication221201", "T
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TKMFCConsoleApplication221201", "TKMFCConsoleApplication221201\TKMFCConsoleApplication221201.vcxproj", "{1A481860-82A1-4642-AA2C-77EC83ED62CD}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TKWin32Application221202", "TKWin32Application221202\TKWin32Application221202.vcxproj", "{67DE2072-29E7-403F-BD99-8E7FEB340E79}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{1A481860-82A1-4642-AA2C-77EC83ED62CD}.Release|x64.Build.0 = Release|x64
 		{1A481860-82A1-4642-AA2C-77EC83ED62CD}.Release|x86.ActiveCfg = Release|Win32
 		{1A481860-82A1-4642-AA2C-77EC83ED62CD}.Release|x86.Build.0 = Release|Win32
+		{67DE2072-29E7-403F-BD99-8E7FEB340E79}.Debug|x64.ActiveCfg = Debug|x64
+		{67DE2072-29E7-403F-BD99-8E7FEB340E79}.Debug|x64.Build.0 = Debug|x64
+		{67DE2072-29E7-403F-BD99-8E7FEB340E79}.Debug|x86.ActiveCfg = Debug|Win32
+		{67DE2072-29E7-403F-BD99-8E7FEB340E79}.Debug|x86.Build.0 = Debug|Win32
+		{67DE2072-29E7-403F-BD99-8E7FEB340E79}.Release|x64.ActiveCfg = Release|x64
+		{67DE2072-29E7-403F-BD99-8E7FEB340E79}.Release|x64.Build.0 = Release|x64
+		{67DE2072-29E7-403F-BD99-8E7FEB340E79}.Release|x86.ActiveCfg = Release|Win32
+		{67DE2072-29E7-403F-BD99-8E7FEB340E79}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
