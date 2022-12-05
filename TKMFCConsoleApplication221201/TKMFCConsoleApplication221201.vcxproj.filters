@@ -18,12 +18,12 @@
     <ClCompile Include="TKMFCConsoleApplication221201.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="TKWinApp.cpp">
+    <ClCompile Include="TKNumberUtil.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TKWinApp.h">
+    <ClInclude Include="TKNumberUtil.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
