@@ -129,9 +129,11 @@
   <ItemGroup>
     <ClCompile Include="TKMFCConsoleApplication221201.cpp" />
     <ClCompile Include="TKNumberUtil.cpp" />
+    <ClCompile Include="TKStringUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TKNumberUtil.h" />
+    <ClInclude Include="TKStringUtil.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

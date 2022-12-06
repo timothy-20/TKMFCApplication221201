@@ -73,6 +73,32 @@
 //}
 
 #include <ShObjIdl.h>
+#include <atlbase.h>
+
+template<typename T>
+void TKSafeRelease(T** ppt)
+{
+	if (*ppt != NULL)
+	{
+		(*ppt)->Release();
+		*ppt = NULL;
+	}
+}
+
+template<typename T>
+class TKSmartPointer
+{
+private:
+	T* p_ptr;
+
+public:
+	TKSmartPointer(T* p) : p_ptr(p) { }
+	~TKSmartPointer()
+	{
+		if (this->p_ptr != NULL)
+			this->p_ptr->Release();
+	}
+};
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
@@ -93,54 +119,42 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
-	if (FAILED(hr))
+	if (SUCCEEDED(hr))
 	{
-		OutputDebugString(L"Fail COM initialize.");
-		return 0;
+		CComPtr<IFileOpenDialog> fileOpenDialog = NULL;
+		hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&fileOpenDialog));
+
+		if (SUCCEEDED(hr))
+		{
+			hr = fileOpenDialog->Show(NULL);
+
+			if (SUCCEEDED(hr))
+			{
+				CComPtr<IShellItem> item = NULL;
+				hr = fileOpenDialog->GetResult(&item);
+
+				if (SUCCEEDED(hr))
+				{
+					PWSTR pszFilePath;
+					hr = item->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+
+					if (SUCCEEDED(hr))
+					{
+						MessageBox(NULL, pszFilePath, L"File Path", MB_OK);
+						CoTaskMemFree(pszFilePath);
+					}
+
+					//item->Release();
+					//::TKSafeRelease(&item);
+				}
+			}
+
+			//fileOpenDialog->Release();
+			//::TKSafeRelease(&fileOpenDialog);
+		}
+
+		CoUninitialize();
 	}
-
-	IFileOpenDialog* fileOpenDialog;
-	hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&fileOpenDialog));
-
-	if (FAILED(hr))
-	{
-		OutputDebugString(L"Fail COM create instance.");
-		return 0;
-	}
-
-	hr = fileOpenDialog->Show(NULL);
-
-	if (FAILED(hr))
-	{
-		OutputDebugString(L"Fail to show file open dialog.");
-
-		fileOpenDialog->Release();
-		return 0;
-	}
-
-	IShellItem* item;
-	hr = fileOpenDialog->GetResult(&item);
-
-	if (FAILED(hr))
-	{
-		OutputDebugString(L"Fail to get result.");
-		return 0;
-	}
-
-	PWSTR pszFilePath;
-	hr = item->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
-
-	if (FAILED(hr))
-	{
-		OutputDebugString(L"Fail to get display name.");
-
-		item->Release();
-		return 0;
-	}
-
-	MessageBox(NULL, pszFilePath, L"File Path", MB_OK);
-	CoTaskMemFree(pszFilePath);
-	CoUninitialize();
 
 	return 0;
 }
