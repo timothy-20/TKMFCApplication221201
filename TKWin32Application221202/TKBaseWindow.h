@@ -5,7 +5,7 @@ template<typename DERIVED_TYPE>
 class TKBaseWindow
 {
 protected:
-	HWND _hwnd;
+	HWND m_hwnd;
 
 protected:
 	virtual PCWSTR ClassName() const = 0;
@@ -37,8 +37,8 @@ protected:
 	}
 
 public:
-	TKBaseWindow() : _hwnd(NULL) { }
-	HWND Window() const { return this->_hwnd; }
+	TKBaseWindow() : m_hwnd(NULL) { }
+	HWND Window() const { return this->m_hwnd; }
 	BOOL Create(
 		PCWSTR lpWindowName,
 		DWORD dwStyle,
@@ -59,9 +59,9 @@ public:
 
 		RegisterClass(&wc);
 
-		this->_hwnd = CreateWindowEx(dwExStyle, this->ClassName(), lpWindowName, dwStyle, x, y, width, height, hwndParent, hmenu, GetModuleHandle(NULL), this);
+		this->m_hwnd = CreateWindowEx(dwExStyle, this->ClassName(), lpWindowName, dwStyle, x, y, width, height, hwndParent, hmenu, GetModuleHandle(NULL), this);
 		
-		return (this->_hwnd ? TRUE : FALSE);
+		return (this->m_hwnd ? TRUE : FALSE);
 	}
 };
 
