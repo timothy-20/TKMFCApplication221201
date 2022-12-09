@@ -127,11 +127,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="TKDummyList.cpp" />
     <ClCompile Include="TKMFCConsoleApplication221201.cpp" />
     <ClCompile Include="TKNumberUtil.cpp" />
     <ClCompile Include="TKStringUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="TKDummyList.h" />
     <ClInclude Include="TKNumberUtil.h" />
     <ClInclude Include="TKStringUtil.h" />
   </ItemGroup>

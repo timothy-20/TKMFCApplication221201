@@ -76,16 +76,6 @@
 #include <atlbase.h>
 
 template<typename T>
-void TKSafeRelease(T** ppt)
-{
-	if (*ppt != NULL)
-	{
-		(*ppt)->Release();
-		*ppt = NULL;
-	}
-}
-
-template<typename T>
 class TKSmartPointer
 {
 private:
@@ -100,7 +90,7 @@ public:
 	}
 };
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
+void MakeshiftFuntionScope()
 {
 	//TKMainWindow mainWindow;
 
@@ -154,6 +144,24 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 		}
 
 		CoUninitialize();
+	}
+}
+
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
+{
+	TKMainWindow mainWindow;
+
+	if (mainWindow.Create(L"Circle", WS_OVERLAPPEDWINDOW) == FALSE)
+		return 0;
+
+	::ShowWindow(mainWindow.Window(), nCmdShow);
+
+	MSG msg = {};
+
+	while (::GetMessage(&msg, nullptr, 0, 0))
+	{
+		::TranslateMessage(&msg);
+		::DispatchMessage(&msg);
 	}
 
 	return 0;

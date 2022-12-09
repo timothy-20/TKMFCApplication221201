@@ -24,12 +24,18 @@
     <ClCompile Include="TKStringUtil.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="TKDummyList.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TKNumberUtil.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="TKStringUtil.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="TKDummyList.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

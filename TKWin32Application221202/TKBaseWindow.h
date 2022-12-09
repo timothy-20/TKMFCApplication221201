@@ -21,7 +21,7 @@ protected:
 
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)self);
 
-			self->_hwnd = hwnd;
+			self->m_hwnd = hwnd;
 		}
 		else
 		{

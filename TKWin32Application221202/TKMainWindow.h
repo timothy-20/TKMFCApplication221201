@@ -19,7 +19,7 @@ private:
 	ID2D1Factory* p_factory;
 	ID2D1HwndRenderTarget* p_renderTarget;
 	ID2D1SolidColorBrush* p_brush;
-	D2D1_ELLIPSE ellipse;
+	D2D1_ELLIPSE m_ellipse;
 
 	void CalculateLayout();
 	HRESULT CreateGraphicsResources();
@@ -28,7 +28,7 @@ private:
 	void ReSize();
 
 public:
-	TKMainWindow() : p_factory(NULL), p_renderTarget(NULL), p_brush(NULL) { }
+	TKMainWindow() : p_factory(NULL), p_renderTarget(NULL), p_brush(NULL), m_ellipse({}) { }
 	PCWSTR ClassName() const { return L"TKMainWindow"; }
 	LRESULT HandleMessage(UINT umsg, WPARAM wparam, LPARAM lparam);
 };
