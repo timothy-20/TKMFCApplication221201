@@ -61,6 +61,11 @@ void TKMainWindow::OnPaint()
 		this->p_renderTarget->BeginDraw();
 		this->p_renderTarget->Clear(D2D1::ColorF(D2D1::ColorF::SkyBlue));
 		this->p_renderTarget->FillEllipse(this->m_ellipse, this->p_brush);
+		//this->p_renderTarget->DrawEllipse(this->m_ellipse, )
+
+
+
+
 		handleResult = this->p_renderTarget->EndDraw();
 
 		if (FAILED(handleResult) || handleResult == D2DERR_RECREATE_TARGET)
