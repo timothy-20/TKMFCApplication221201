@@ -29,18 +29,27 @@ LRESULT CALLBACK WinProcedure(HWND, UINT, WPARAM, LPARAM);
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int nCmdShow)
 {
-	WNDCLASS wc{
-		CS_DROPSHADOW,
+	HICON windowIcon(::LoadIcon(NULL, IDI_ASTERISK));
+	WNDCLASSEX wcex{
+		sizeof(WNDCLASSEX),
+		CS_HREDRAW | CS_VREDRAW | CS_DROPSHADOW,
 		::WinProcedure,
 		0,
 		0,
 		hInst,
-		NULL,
-		::LoadCursor(NULL, IDC_ARROW),
-		(HBRUSH)COLOR_WINDOW,
+		windowIcon,
+		::LoadCursor(NULL, IDC_IBEAM),
+		(HBRUSH)(COLOR_BACKGROUND + 1),
 		L"Main Window",
-		L"TKMainWindow"
+		L"TKMainWindow",
+		windowIcon
 	};
+	
+	if (::RegisterClassEx(&wcex) == 0)
+		return -1;
+
+
+
 	return 0;
 }
 
