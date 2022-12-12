@@ -25,33 +25,26 @@ public:
 	}
 };
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
+LRESULT CALLBACK WinProcedure(HWND, UINT, WPARAM, LPARAM);
+
+int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int nCmdShow)
 {
-	if (FAILED(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE)))
-		return 0;
-
-	TKMainWindow mainWindow;
-
-	if (mainWindow.Create(L"Analog Clock", WS_OVERLAPPEDWINDOW) == FALSE)
-		return 0;
-
-	::ShowWindow(mainWindow.Window(), nCmdShow);
-
-	MSG msg{};
-
-	while (msg.message != WM_QUIT)
-	{
-		if (::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-		{
-			::TranslateMessage(&msg);
-			::DispatchMessage(&msg);
-			continue;
-		}
-
-		mainWindow.WaitTimer();
-	}
-
-	::CoUninitialize();
-
+	WNDCLASS wc{
+		CS_DROPSHADOW,
+		::WinProcedure,
+		0,
+		0,
+		hInst,
+		NULL,
+		::LoadCursor(NULL, IDC_ARROW),
+		(HBRUSH)COLOR_WINDOW,
+		L"Main Window",
+		L"TKMainWindow"
+	};
 	return 0;
+}
+
+LRESULT CALLBACK WinProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+
 }

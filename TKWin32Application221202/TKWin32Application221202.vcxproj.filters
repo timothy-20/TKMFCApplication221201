@@ -13,48 +13,54 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="소스 파일\MSDN_Example_cpp">
+      <UniqueIdentifier>{40c2b04a-a8d2-43dd-8859-4763bb53203f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\MSDN_Example_h">
+      <UniqueIdentifier>{7e052100-944e-40ae-b414-15c6b850f8d4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="TKStringUtils.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="TKBaseWindow.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="TKMainWindow.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="TKDPIScale.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="TKGraphicScene.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\MSDN_Example_cpp</Filter>
     </ClCompile>
     <ClCompile Include="TKClockScene.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\MSDN_Example_cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="TKDPIScale.cpp">
+      <Filter>소스 파일\MSDN_Example_cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="TKGraphicScene.cpp">
+      <Filter>소스 파일\MSDN_Example_cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="TKMainWindow.cpp">
+      <Filter>소스 파일\MSDN_Example_cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="TKStringUtils.cpp">
+      <Filter>소스 파일\MSDN_Example_cpp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TKStringUtils.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="TKBaseWindow.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="TKMainWindow.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="TKDPIScale.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="TKGraphicScene.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\MSDN_Example_h</Filter>
     </ClInclude>
     <ClInclude Include="TKClockScene.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\MSDN_Example_h</Filter>
+    </ClInclude>
+    <ClInclude Include="TKDPIScale.h">
+      <Filter>헤더 파일\MSDN_Example_h</Filter>
+    </ClInclude>
+    <ClInclude Include="TKGraphicScene.h">
+      <Filter>헤더 파일\MSDN_Example_h</Filter>
+    </ClInclude>
+    <ClInclude Include="TKMainWindow.h">
+      <Filter>헤더 파일\MSDN_Example_h</Filter>
+    </ClInclude>
+    <ClInclude Include="TKStringUtils.h">
+      <Filter>헤더 파일\MSDN_Example_h</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
