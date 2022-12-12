@@ -1,5 +1,6 @@
 #pragma once
 #include "TKBaseWindow.h"
+#include "TKClockScene.h"
 #include <d2d1.h>
 #pragma comment(lib, "d2d1")
 
@@ -16,19 +17,14 @@ void TKSafeRelease(T** ppT)
 class TKMainWindow : public TKBaseWindow<TKMainWindow>
 {
 private:
-	ID2D1Factory* p_factory;
-	ID2D1HwndRenderTarget* p_renderTarget;
-	ID2D1SolidColorBrush* p_brush;
-	D2D1_ELLIPSE m_ellipse;
+	HANDLE m_timer;
+	TKClockScene m_clockScene;
 
-	void CalculateLayout();
-	HRESULT CreateGraphicsResources();
-	void DiscardGraphicsResources();
-	void OnPaint();
-	void ReSize();
+	BOOL InitializeTimer();
 
 public:
-	TKMainWindow() : p_factory(NULL), p_renderTarget(NULL), p_brush(NULL), m_ellipse({}) { }
+	TKMainWindow() : m_timer(NULL) { }
 	PCWSTR ClassName() const { return L"TKMainWindow"; }
 	LRESULT HandleMessage(UINT umsg, WPARAM wparam, LPARAM lparam);
+	void WaitTimer();
 };

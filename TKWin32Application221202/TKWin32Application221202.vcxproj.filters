@@ -30,7 +30,10 @@
     <ClCompile Include="TKDPIScale.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="TKScene.cpp">
+    <ClCompile Include="TKGraphicScene.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="TKClockScene.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,7 +50,10 @@
     <ClInclude Include="TKDPIScale.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="TKScene.h">
+    <ClInclude Include="TKGraphicScene.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="TKClockScene.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
