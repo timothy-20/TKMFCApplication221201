@@ -1,4 +1,6 @@
 #pragma once
+#include <iostream>
+
 template<typename TYPE, size_t LENGTH>
 class TKDummyList
 {

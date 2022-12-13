@@ -5,6 +5,7 @@
 #include <Windows.h>
 #include <stdio.h>
 #include <iostream>
+#include <vector>
 #include <ShObjIdl.h>
 #include <atlbase.h>
 
@@ -24,6 +25,24 @@ public:
 			this->p_ptr->Release();
 	}
 };
+
+typedef struct __MONITOR_RECT
+{
+	std::vector<RECT> monitorRects;
+	RECT combinedRect;
+
+	static BOOL CALLBACK MonitorEnumProc(HMONITOR hMon, HDC hdc, LPRECT lpMonitorRect, LPARAM lParam)
+	{
+		__MONITOR_RECT* thisRect = reinterpret_cast<__MONITOR_RECT*>(lParam);
+	}
+
+	void MonitorRects()
+	{
+		::SetRectEmpty(&this->combinedRect);
+		::EnumDisplayMonitors(0, 0, this->MonitorEnumProc, (LPARAM)this);
+	}
+
+} TKMonitorRects;
 
 LRESULT CALLBACK WinProcedure(HWND, UINT, WPARAM, LPARAM);
 
@@ -48,7 +67,20 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int nCmdSho
 	if (::RegisterClassEx(&wcex) == 0)
 		return -1;
 
+	//RECT clientRect{};
+	//::getscreen
+	//if (::GetClientRect(NULL, &clientRect))
+	//{
+	//	::CreateWindowEx(
+	//		WS_EX_OVERLAPPEDWINDOW,
+	//		wcex.lpszClassName,
+	//		L"New Window",
+	//		WS_OVERLAPPEDWINDOW,
+	//		(clientRect.right / 2), (clientRect.bottom / 2),
+	//		300, 150,
+	//		NULL, NULL, NULL, NULL);
 
+	//}
 
 	return 0;
 }
