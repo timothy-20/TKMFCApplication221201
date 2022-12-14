@@ -4,21 +4,70 @@
 #include <stdarg.h>
 #include <iostream>
 #include <crtdbg.h>
+#include <vector>
 
-#ifdef _DEBUG
-#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
-#endif // _DEBUG
+//#ifdef _DEBUG
+//#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
+//#endif // _DEBUG
 
-class TKException : public std::exception
+typedef struct __ONLY_DOUBLE
 {
-public:
-	const char* what() const noexcept override { return "Unable to format va_args string."; }
+	template<typename T>
+	void getDouble(T) = delete;
+	void getDouble(double d)
+	{
+		std::cout << "Get double: " << d << std::endl;
+	}
+
+} TKOnlyDouble;
+
+typedef enum _TKNormalEnum : char
+{
+	TKLetterA = 'a',
+	TKLetterB = 'b',
+	TKLetterC = 'c'
+
+} TKNormalEnum;
+
+enum class TKUserType : char
+{
+	TKNormalUser = 'N',
+	TKPremiumUser = 'P',
+	TKAdmin = 'A'
 };
 
-const char* FormatWithString(const char* format, ...)
+//typedef struct __USER_INFO
+//{
+//private:
+//	TKUserType m_castType{ TKUserType::TKNormalUser };
+//
+//public:
+//	uint16_t id;
+//	const char* name;
+//	const char* description;
+//
+//	char castTypeC() const { return static_cast<char>(this->m_castType); }
+//
+//	__USER_INFO() :
+//		id(0),
+//		name(""),
+//		description("no description")
+//	{
+//	}
+//	__USER_INFO(TKUserType castType) : __USER_INFO()
+//	{
+//		this->m_castType = castType;
+//	}
+//
+//	static __USER_INFO GetDefaultUser() { return { TKUserType::TKNormalUser }; }
+//
+//} TKUserInfo;
+
+std::string FormatWithChar(const char* format, ...) noexcept
 {
-	//const_cast ? or mutable
-	int fn(0), n(static_cast<int>(sizeof(format) * 2));
+	int fn(0);
+	int n(static_cast<int>(strlen(format) * 2));
+
 	std::unique_ptr<char[]> formatted{};
 	va_list ap{};
 
@@ -40,26 +89,11 @@ const char* FormatWithString(const char* format, ...)
 		else
 		{
 			break;
-			throw ::TKException();
 		}
 	}
 
-	char result[40]{};
-	char* string(formatted.get());
-	char c(*string);
-
-	for (int i = 1; c != '\0'; c = *(string + i++))
-	{
-		result[i - 1] = c;
-	}
-
-	//const char[]
-
-	std::cout << result << std::endl;
-
 	return std::string(formatted.get());
 }
-
 
 typedef struct __USER_INFO
 {
@@ -68,16 +102,24 @@ private:
 	bool m_isPrivate;
 
 public:
-	const char* userName{""};
-	const char* userDescription{"no descript."};
+	const char* userName{ "" };
+	const char* userDescription{ "no descript." };
+
+	__USER_INFO() = default;
+	__USER_INFO(uint16_t userId, bool isPrivate) : m_userId(userId), m_isPrivate(isPrivate) 
+	{ 
+		std::cout << "Create __USER_INFO: " << this->m_userId << std::endl; 
+	}
+
+	virtual ~__USER_INFO() 
+	{ 
+		std::cout << "Destroy __USER_INFO: " << this->m_userId << std::endl; 
+	}
 
 	virtual void ShowSummaryInfo()
 	{
-		
+		std::cout << ::FormatWithChar("[INFO] %d : This user name is '%s'", this->m_userId, this->userName) << std::endl;
 	}
-
-	__USER_INFO(uint16_t userId, bool isPrivate) : m_userId(userId), m_isPrivate(isPrivate) {}
-	virtual ~__USER_INFO() {}
 
 } TKUserInfo;
 
@@ -86,26 +128,22 @@ typedef struct __PREMIUM_USER_INFO final : public TKUserInfo
 private:
 
 public:
+	__PREMIUM_USER_INFO(uint16_t userId, bool isPrivate) : TKUserInfo(userId, isPrivate)
+	{
+
+	}
+
+	void ShowSummaryInfo() override
+	{
+		TKUserInfo::ShowSummaryInfo();
+
+		std::cout << ::FormatWithChar("[INFO]") << std::endl;
+	}
 
 } TKPremiumUserInfo;
 
 int main()
 {
-	/*std::ios::sync_with_stdio(false);
-	std::cin.tie(nullptr);
-	std::cout.tie(nullptr);*/
-
-	try
-	{
-		std::string result = ::FormatWithString("result: %d", 10);
-
-		std::cout << result << std::endl;
-	}
-	catch (const std::exception& reason)
-	{
-		std::cout << "Exception reason: " << reason.what() << std::endl;
-	}
-	
 	_CrtDumpMemoryLeaks();
 	return 0;
 }
