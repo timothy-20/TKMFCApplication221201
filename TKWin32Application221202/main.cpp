@@ -53,11 +53,10 @@ private:
 	HMENU m_fileMenu;
 
 public:
-	enum
+	enum : char
 	{
-		TKFileMenuNew,
-		TKFileMenuOpen,
-		TKFileMenuSave
+		TKFileMenuNew = 'N',
+		TKFileMenuExit = 'E'
 	};
 
 public:
@@ -72,16 +71,21 @@ public:
 
 	HMENU GetFileMenu() 
 	{
-		HMENU fileMenu(::CreateMenu());
+		HMENU fileOpenSubMenu(::CreateMenu());
 		
+		::AppendMenu(fileOpenSubMenu, MF_STRING, NULL, L"Projects");
+		::AppendMenu(fileOpenSubMenu, MF_STRING, NULL, L"Folder");
+	
+		HMENU fileMenu(::CreateMenu());
+
 		::AppendMenu(fileMenu, MF_STRING, TKFileMenuNew, L"New File");
-		::AppendMenu(fileMenu, MF_STRING, TKFileMenuOpen, L"Open");
-		::AppendMenu(fileMenu, MF_STRING, TKFileMenuSave, L"Save");
+		::AppendMenu(fileMenu, MF_POPUP, (UINT_PTR)fileOpenSubMenu, L"Open");
+		::AppendMenu(fileMenu, MF_SEPARATOR, NULL, NULL);
+		::AppendMenu(fileMenu, MF_STRING, TKFileMenuExit, L"Exit");
 
 		return fileMenu;
 	}
 
-	
 	static void SetMenu(HWND hWnd)
 	{
 		TKCustomMenu menu;
@@ -90,30 +94,33 @@ public:
 	}
 };
 
+HWND SetControlWindow(HWND hWndParent)
+{
+	HWND hWndStatic(::CreateWindow(
+		L"static",
+		L"Enter text here :",
+		WS_CHILD | WS_VISIBLE | WS_BORDER || SS_CENTER,
+		100, 100,
+		300, 50,
+		hWndParent,
+		NULL, NULL, NULL, NULL
+	));
+	HWND hWndEdit(::CreateWindow(
+		L"edit",
+		L"",
+	));
+
+	return hWndStatic;
+}
+
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int nCmdShow)
 {
 	HICON windowIcon(::LoadIcon(NULL, IDI_ASTERISK));
 	HCURSOR windowCursor(::LoadCursor(NULL, IDC_IBEAM));
-	HBRUSH windowBackground((HBRUSH)(COLOR_BACKGROUND + 1));
-
-	/*WNDCLASSEX wcex{
-		sizeof(WNDCLASSEX),
-		CS_HREDRAW | CS_VREDRAW | CS_DROPSHADOW,
-		::WindowProcedure,
-		0,
-		0,
-		hInst,
-		windowIcon,
-		::LoadCursor(NULL, IDC_IBEAM),
-		(HBRUSH)(COLOR_BACKGROUND + 1),
-		L"Main Window",
-		L"TKMainWindow",
-		windowIcon
-	};*/
-
+	HBRUSH windowBackground((HBRUSH)COLOR_WINDOW);
 	WNDCLASS wc{
-		CS_HREDRAW | CS_VREDRAW | CS_DROPSHADOW,
+		CS_HREDRAW | CS_VREDRAW,
 		::WindowProcedure,
 		0, 0,
 		hInst,
@@ -155,6 +162,7 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 	{
 	case WM_CREATE:
 		TKCustomMenu::SetMenu(hWnd);
+		::SetControlWindow(hWnd);
 		return 0;
 
 	case WM_COMMAND:
@@ -162,16 +170,12 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 		switch (wParam)
 		{
 		case TKCustomMenu::TKFileMenuNew:
-			//::MessageBeep(MB_OK);
-			::OutputDebugString(L"Action new file\n");
+			::MessageBeep(MB_OK);
+			::OutputDebugString(L"Action new file.\n");
 			break;
 
-		case TKCustomMenu::TKFileMenuOpen:
-			::OutputDebugString(L"Action open file\n");
-			break;
-
-		case TKCustomMenu::TKFileMenuSave:
-			::OutputDebugString(L"Action save file\n");
+		case TKCustomMenu::TKFileMenuExit:
+			::DestroyWindow(hWnd);
 			break;
 
 		default:
