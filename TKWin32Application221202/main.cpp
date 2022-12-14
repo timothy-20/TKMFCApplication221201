@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <vector>
+#include <map>
 #include <ShObjIdl.h>
 #include <atlbase.h>
 
@@ -50,21 +51,23 @@ class TKCustomMenu
 {
 private:
 	HMENU m_menu;
-	HMENU m_fileMenu;
+	HMENU m_textfield;
 
 public:
 	enum : char
 	{
-		TKFileMenuNew = 'N',
-		TKFileMenuExit = 'E'
+		TKMenuNewFile = 'N',
+		TKMenuExitFile = 'E',
+		TKMenuEditTitle = 'C'
 	};
 
 public:
 	TKCustomMenu() :
 		m_menu(::CreateMenu()),
-		m_fileMenu(this->GetFileMenu()) 
+		m_textfield()
 	{
-		::AppendMenu(this->m_menu, MF_POPUP, (UINT_PTR)this->m_fileMenu, L"File");
+		::AppendMenu(this->m_menu, MF_POPUP, (UINT_PTR)this->GetFileMenu(), L"File");
+		::AppendMenu(this->m_menu, MF_STRING, TKMenuEditTitle, L"Edit");
 	}
 
 	~TKCustomMenu() {};
@@ -78,10 +81,10 @@ public:
 	
 		HMENU fileMenu(::CreateMenu());
 
-		::AppendMenu(fileMenu, MF_STRING, TKFileMenuNew, L"New File");
+		::AppendMenu(fileMenu, MF_STRING, TKMenuNewFile, L"New File");
 		::AppendMenu(fileMenu, MF_POPUP, (UINT_PTR)fileOpenSubMenu, L"Open");
 		::AppendMenu(fileMenu, MF_SEPARATOR, NULL, NULL);
-		::AppendMenu(fileMenu, MF_STRING, TKFileMenuExit, L"Exit");
+		::AppendMenu(fileMenu, MF_STRING, TKMenuExitFile, L"Exit");
 
 		return fileMenu;
 	}
@@ -92,27 +95,50 @@ public:
 		
 		::SetMenu(hWnd, menu.m_menu);
 	}
+
+	static std::map<std::string, HWND> GetTextfieldLabel(HWND hWndParent)
+	{
+		HWND hWndTextfield(::CreateWindow(
+			NULL,
+			NULL,
+			WS_CHILD | WS_BORDER,
+			20, 10, 460, 30,
+			hWndParent,
+			NULL, NULL, NULL
+		));
+		HWND hWndStatic(::CreateWindow(
+			L"static",
+			L"Title : ",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT,
+			5, 5, 50, 20,
+			hWndTextfield,
+			NULL, NULL, NULL
+		));
+		HFONT hFontStatic(::CreateFont(
+			24, 0, 0, 0, FW_MEDIUM,
+			FALSE, FALSE, FALSE,
+			ANSI_CHARSET,
+			OUT_DEFAULT_PRECIS,
+			CLIP_DEFAULT_PRECIS,
+			DEFAULT_QUALITY,
+			DEFAULT_PITCH | FF_SWISS,
+			L"Arial"
+		));
+
+		::SendMessage(hWndStatic, WM_SETFONT, WPARAM(hFontStatic), TRUE);
+
+		HWND hWndEdit(::CreateWindow(
+			L"edit",
+			L"",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
+			55, 5, 405, 20,
+			hWndTextfield,
+			NULL, NULL, NULL
+		));
+
+		return {};
+	}
 };
-
-HWND SetControlWindow(HWND hWndParent)
-{
-	HWND hWndStatic(::CreateWindow(
-		L"static",
-		L"Enter text here :",
-		WS_CHILD | WS_VISIBLE | WS_BORDER || SS_CENTER,
-		100, 100,
-		300, 50,
-		hWndParent,
-		NULL, NULL, NULL, NULL
-	));
-	HWND hWndEdit(::CreateWindow(
-		L"edit",
-		L"",
-	));
-
-	return hWndStatic;
-}
-
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int nCmdShow)
 {
@@ -162,20 +188,24 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 	{
 	case WM_CREATE:
 		TKCustomMenu::SetMenu(hWnd);
-		::SetControlWindow(hWnd);
+		
 		return 0;
 
 	case WM_COMMAND:
 	{
 		switch (wParam)
 		{
-		case TKCustomMenu::TKFileMenuNew:
+		case TKCustomMenu::TKMenuNewFile:
 			::MessageBeep(MB_OK);
 			::OutputDebugString(L"Action new file.\n");
 			break;
 
-		case TKCustomMenu::TKFileMenuExit:
+		case TKCustomMenu::TKMenuExitFile:
 			::DestroyWindow(hWnd);
+			break;
+
+		case TKCustomMenu::TKMenuEditTitle:
+			
 			break;
 
 		default:
