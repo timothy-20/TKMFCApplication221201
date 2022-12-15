@@ -194,6 +194,7 @@ public:
 	}
 };
 
+//Linked list 구현 중.
 class TKNamedElement
 {
 	using TKWeakNamedElement = std::weak_ptr<TKNamedElement>;
