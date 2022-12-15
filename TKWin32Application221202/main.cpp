@@ -106,8 +106,7 @@ typedef struct __WINDOW_FRAME
 	int height;
 
 	__WINDOW_FRAME() : x(0), y(0), width(0), height(0) { }
-
-	__WINDOW_FRAME(std::initializer_list<int> list) : //불필요하지만, initializer_list 구현을 연습해보고 싶었습니다.
+	__WINDOW_FRAME(std::initializer_list<int> list) : //불필요하지만, initializer_list 구현 연습.
 		x(*list.begin()),
 		y(*(list.begin() + 1)),
 		width(*(list.begin() + 2)),
@@ -117,11 +116,26 @@ typedef struct __WINDOW_FRAME
 
 } TKWindowFrame;
 
+//TKWindow 내부에서 subWindow에 대한 관리가 가능한 기능을 추가할 것.
+//TKWindow 객체에서 frame 조정 시 resize에 대한 지원 추가할 것.
 typedef struct __WINDOW_OBJECT
 {
+	using TKWindowContainer = std::vector<std::unique_ptr<__WINDOW_OBJECT>>;
+
+private:
+	LPCWSTR m_className;
+	LPCWSTR m_windowName;
+	DWORD m_style;
+	TKWindowFrame m_frame;
+	HMENU m_hMenu;
+	HINSTANCE m_hInstance;
+	LPVOID m_lParam;
+	TKWindowContainer m_subwindows;
+
 public:
-	enum class PreviousWindowClass : short
+	enum class PreviousWindowClass : unsigned short
 	{
+		NONE = 0,
 		BUTTON = 101,
 		COMBOBOX,
 		EDIT,
@@ -147,10 +161,33 @@ public:
 		m_frame(frame),
 		m_hMenu(hMenu),
 		m_hInstance(hInstance),
-		m_lParam(lParam) 
+		m_lParam(lParam),
+		m_subwindows(TKWindowContainer())
 	{
 	}
 
+	__WINDOW_OBJECT(const __WINDOW_OBJECT& crWindow) :
+		m_className(crWindow.m_className),
+		m_windowName(crWindow.m_windowName),
+		m_style(crWindow.m_style),
+		m_frame(crWindow.m_frame),
+		m_hMenu(crWindow.m_hMenu),
+		m_hInstance(crWindow.m_hInstance),
+		m_lParam(crWindow.m_lParam)
+	{	
+	}
+
+	__WINDOW_OBJECT& operator=(const __WINDOW_OBJECT& crWindow)
+	{
+		if (this != &crWindow)
+		{
+
+		}
+
+		return *this;
+	}
+
+	//Utils
 	LPCWSTR GetClassNameW(PreviousWindowClass windowClassName)
 	{
 		switch (windowClassName)
@@ -164,22 +201,12 @@ public:
 		case PreviousWindowClass::RICHEDIT_CLASS: return L"richedit_class";
 		case PreviousWindowClass::SCROLLBAR: return L"scrollbar";
 		case PreviousWindowClass::STATIC: return L"static";
-		default: return L"";
+		default: return NULL;
 		}
 	}
-
-	static __WINDOW_OBJECT GetDefaultChildWindow()
+	HWND InsertToParentWindow(HWND hWndParent)
 	{
-		return __WINDOW_OBJECT(
-			__WINDOW_OBJECT::PreviousWindowClass::STATIC,
-			NULL,
-			WS_CHILD | WS_VISIBLE, 
-			TKWindowFrame{ 0, 0, 100, 100 });
-	}
-
-	void InsertToParentWindow(HWND hWndParent)
-	{
-		::CreateWindowW(
+		return ::CreateWindowW(
 			this->m_className, 
 			this->m_windowName, 
 			this->m_style, 
@@ -193,6 +220,12 @@ public:
 			this->m_lParam
 		);
 	}
+	void AddSubwindow(__WINDOW_OBJECT window)
+	{
+		std::unique_ptr<__WINDOW_OBJECT> upWindow(new __WINDOW_OBJECT(window));
+		//this->m_subwindows.push_back()
+	}
+
 	void SetFrame(TKWindowFrame frame)
 	{
 
@@ -201,87 +234,104 @@ public:
 	int GetOriginY() const { return this->m_frame.y; }
 	int GetSizeWidth() const { return this->m_frame.width; }
 	int GetSizeHeight() const { return this->m_frame.height; }
+	static __WINDOW_OBJECT GetDefaultChildWindow()
+	{
+		return __WINDOW_OBJECT(
+			__WINDOW_OBJECT::PreviousWindowClass::STATIC,
+			NULL,
+			WS_CHILD | WS_VISIBLE,
+			TKWindowFrame{ 0, 0, 100, 100 });
+	}
+} TKWindow;
 
+class TKTextField
+{
 private:
-	LPCWSTR m_className;
-	LPCWSTR m_windowName;
-	DWORD m_style;
-	TKWindowFrame m_frame;
-	HMENU m_hMenu;
-	HINSTANCE m_hInstance;
-	LPVOID m_lParam;
+	TKWindow m_background;
+	TKWindow m_titleLabel;
+	TKWindow m_inputField;
 
-} TKWindowObject;
+	TKWindow GetBackgroundWindow() const
+	{
+		return TKWindow(
+			TKWindow::PreviousWindowClass::STATIC,
+			NULL,
+			WS_CHILD | WS_VISIBLE | WS_BORDER,
+			{ 20, 10, 460, 30 }
+		);
+	}
+	TKWindow GetTitleLabel() const
+	{
+		return TKWindow(
+			TKWindow::PreviousWindowClass::STATIC,
+			L"Title: ",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT,
+			{ 5, 5, 50, 20 }
+		);
+	}
+	TKWindow GetTextField() const
+	{
+		return TKWindow(
+			TKWindow::PreviousWindowClass::EDIT,
+			L"",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
+			{ 55, 5, 405, 20 }
+		);
+	}
 
-//class TKCustomTextField
-//{
-//private:
-//	TKWindowObject m_background;
-//	TKWindowObject m_titleLabel;
-//	TKWindowObject m_textField;
-//
-//	HWND CreateBackgroundWindow(HWND hWndParent) const
-//	{
-//		return ::CreateWindow(
-//			NULL,
-//			NULL,
-//			WS_CHILD | WS_BORDER,
-//			20, 10, 460, 30,
-//			hWndParent,
-//			NULL, NULL, NULL
-//		);
-//	}
-//
-//	HWND CreateTitleLabel(HWND hWndParent) const
-//	{
-//		HWND hWndTitleLabel(::CreateWindow(
-//			L"static",
-//			L"Title : ",
-//			WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT,
-//			5, 5, 50, 20,
-//			hWndParent,
-//			NULL, NULL, NULL
-//		));
-//		HFONT hTitleFont(::CreateFont(
-//			24, 0, 0, 0, FW_MEDIUM,
-//			FALSE, FALSE, FALSE,
-//			ANSI_CHARSET,
-//			OUT_DEFAULT_PRECIS,
-//			CLIP_DEFAULT_PRECIS,
-//			DEFAULT_QUALITY,
-//			DEFAULT_PITCH | FF_SWISS,
-//			L"Arial"
-//		));
-//
-//		::SendMessage(hWndTitleLabel, WM_SETFONT, WPARAM(hTitleFont), TRUE);
-//
-//		return hWndTitleLabel;
-//	}
-//
-//	HWND CreateTextField(HWND hWndParent) const
-//	{
-//		HWND hWndTextField(::CreateWindow(
-//			L"edit",
-//			L"",
-//			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
-//			55, 5, 405, 20,
-//			hWndParent,
-//			NULL, NULL, NULL
-//		));
-//
-//		return hWndTextField;
-//	}
-//
-//public:
-//	TKCustomTextField(HWND hWndParent) :
-//		m_hWndBackground(this->CreateBackgroundWindow(hWndParent)),
-//		m_hWndTitleLabel(this->CreateTitleLabel(this->m_hWndBackground)),
-//		m_hWndTextField(this->CreateTextField(this->m_hWndBackground))
-//	{
-//
-//	}
-//
-//};
+public:
+	typedef struct __INTERNAL_WINDOW_HANDLER
+	{
+	public:
+		__INTERNAL_WINDOW_HANDLER(HWND hWndBackground, HWND hWndTitleLabel, HWND hWndInputField) :
+			m_hWndBackground(hWndBackground),
+			m_hWndTitleLabel(hWndTitleLabel),
+			m_hWndInputField(hWndInputField)
+		{
+		}
+
+		void DefaultFontWithSize(unsigned int size)
+		{
+			HFONT hTitleFont(::CreateFont(
+				size, 0, 0, 0, FW_MEDIUM,
+				FALSE, FALSE, FALSE,
+				ANSI_CHARSET,
+				OUT_DEFAULT_PRECIS,
+				CLIP_DEFAULT_PRECIS,
+				DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS,
+				L"Arial"
+			));
+
+			::SendMessage(this->m_hWndTitleLabel, WM_SETFONT, WPARAM(hTitleFont), TRUE);
+		}
+
+	private:
+		HWND m_hWndBackground;
+		HWND m_hWndTitleLabel;
+		HWND m_hWndInputField;
+
+	} WindowHandlers;
+
+	TKTextField() : 
+		m_background(this->GetBackgroundWindow()),
+		m_titleLabel(this->GetTitleLabel()),
+		m_inputField(this->GetTextField())
+	{
+	}
+
+	WindowHandlers CreateTextField(HWND hWndParent)
+	{
+		HWND hWndBackground(this->m_background.InsertToParentWindow(hWndParent));
+		HWND hWndTitleLabel(this->m_titleLabel.InsertToParentWindow(hWndBackground));
+		
+		return WindowHandlers(
+			hWndBackground,
+			hWndTitleLabel,
+			this->m_inputField.InsertToParentWindow(hWndBackground)
+		);
+	}
+};
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int nCmdShow)
 {
@@ -332,14 +382,10 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 	case WM_CREATE:
 	{
 		TKCustomMenu::SetMenu(hWnd);
-		TKWindowObject customWindow(
-			TKWindowObject::PreviousWindowClass::STATIC,
-			L"Test Window",
-			WS_CHILD | WS_VISIBLE | WS_BORDER,
-			{ 10, 10, 100, 100 }
-		);
-
-		customWindow.InsertToParentWindow(hWnd);
+		TKTextField textField;
+		TKTextField::WindowHandlers handlers(textField.CreateTextField(hWnd));
+		
+		handlers.DefaultFontWithSize(20);
 	}
 	return 0;
 

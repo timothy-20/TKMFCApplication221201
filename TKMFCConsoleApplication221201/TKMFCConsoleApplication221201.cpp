@@ -6,9 +6,9 @@
 #include <crtdbg.h>
 #include <vector>
 
-//#ifdef _DEBUG
-//#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
-//#endif // _DEBUG
+#ifdef _DEBUG
+	#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
+#endif // _DEBUG
 
 typedef struct __ONLY_DOUBLE
 {
@@ -142,8 +142,84 @@ public:
 
 } TKPremiumUserInfo;
 
+//: public std::enable_shared_from_this<TKElement>
+class TKElement 
+{
+	using TKElementContainer = std::vector<std::shared_ptr<TKElement>>;
+
+private:
+	uint16_t m_id;
+	TKElementContainer m_subelements;
+
+public:
+	TKElement() : m_id(0) { std::cout << "생성 수행. 기본 객체 식별 번호 할당." << std::endl; }
+	TKElement(const uint16_t id) : 
+		m_id(id), 
+		m_subelements(TKElementContainer())
+	{
+		std::cout << "생성 수행. 현재 객체의 식별 번호 : " << this->m_id << std::endl;
+	}
+	TKElement(const TKElement& rElement)
+	{
+		for (auto spElement : rElement.m_subelements)
+			this->m_subelements.push_back(std::make_shared<TKElement>(*spElement));
+
+		this->m_id = uint16_t(rElement.m_id) + 1;
+
+		std::cout << "복사 생성 수행" << std::endl;
+	}
+	
+	//복사 할당 생성자 구현할 것.
+	TKElement& operator=(const TKElement& rElement)
+	{
+		if (this != &rElement)
+		{
+			std::cout << "복사 할당 수행" << std::endl;
+		}
+
+		return *this;
+	}
+
+	//이동 생성자 및 이동 할당 생성자 구현할 것.
+
+	~TKElement()
+	{
+		std::cout << "소멸 수행 객체의 식별 번호 : " << this->m_id << std::endl;
+	}
+
+	//Utils
+	void AddSubelement(std::shared_ptr<TKElement> spElement)
+	{
+		this->m_subelements.push_back(spElement);
+	}
+};
+
+class TKNamedElement
+{
+	using TKWeakNamedElement = std::weak_ptr<TKNamedElement>;
+
+private:
+	const uint16_t m_id;
+	TKWeakNamedElement m_nextElement;
+
+public:
+	TKNamedElement(TKWeakNamedElement nextElemnt=TKWeakNamedElement()) : m_id(0), m_nextElement(nextElemnt)
+	{
+		std::cout << "기본 생성 수행." << std::endl;
+	}	
+	virtual ~TKNamedElement()
+	{
+		std::cout << "소멸 수행." << std::endl;
+	}
+
+	//Utils
+	
+};
+
 int main()
 {
-	_CrtDumpMemoryLeaks();
+	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
+
 	return 0;
 }
