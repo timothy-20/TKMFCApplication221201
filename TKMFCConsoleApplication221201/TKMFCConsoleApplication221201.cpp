@@ -377,7 +377,7 @@ public:
 };
 
 template<typename T>
-void Wrapper(T&& value) //놀랍지만 해당 인자는 이름이 있기에 'lvalue'이다.
+void Wrapper(T&& value) //간과하기 쉽지만, 해당 인자는 이름이 있기에 'lvalue'이다.
 {
 	::InnerWrapper(std::forward<T>(value));
 }
