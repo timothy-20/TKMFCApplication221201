@@ -297,30 +297,171 @@ public:
 	}
 };
 
+// std::bind를 이용한 함수 호출.
+//void TestFunction(const std::string &text1, const std::string& text2)
+//{
+//	std::cout << "1. " << text1 << std::endl;
+//	std::cout << "2. " << text2 << std::endl;
+//}
+
+//auto testFunction = std::bind(::TestFunction, std::placeholders::_2, std::placeholders::_1);
+//
+//testFunction("Hello, timothy", "I'm peco!");
+
+struct TKCopying
+{
+private:
+	int m_id;
+	std::vector<std::string>* m_container;
+
+public:
+	TKCopying() :
+		m_id(0),
+		m_container(nullptr)
+	{
+		std::cout << "기본 생성자 호출." << std::endl;
+	}
+	TKCopying(int id) : 
+		m_id(id),
+		m_container(new std::vector<std::string>)
+	{ 
+		std::cout << "생성자 호출. 객체 식별 번호: " << this->m_id << std::endl; 
+	}
+	TKCopying(const TKCopying& copy) 
+	{
+		this->m_id = copy.m_id;
+		this->m_container = new std::vector<std::string>(*copy.m_container);
+
+		std::cout << "복사 생성자 호출. 객체 식별 번호: " << this->m_id << std::endl;
+	}
+	TKCopying(TKCopying&& copy) noexcept
+	{
+		this->m_id = copy.m_id;
+		this->m_container = copy.m_container;
+		copy.m_container = nullptr;
+
+		std::cout << "이동 생성자 호출. 객체 식별 번호: " << this->m_id << std::endl;
+	}
+	~TKCopying()
+	{
+		if (this->m_container != nullptr)
+			delete this->m_container;
+	}
+	
+	// Utils
+	TKCopying operator+(const TKCopying& copy)
+	{
+		TKCopying object(this->m_id + copy.m_id);
+
+		object.m_container = new std::vector<std::string>(*this->m_container);
+		
+		for (auto constIter(copy.m_container->cbegin()); constIter != copy.m_container->cend(); constIter++)
+			object.m_container->push_back(*constIter);
+
+		std::cout << &object << std::endl;
+
+		return object;
+	}
+	void AddElement(const std::string& element) const
+	{
+		this->m_container->push_back(element);
+	}
+	int GetId() const 
+	{ 
+		return this->m_id; 
+	}
+	std::vector<std::string> GetContainer() const 
+	{ 
+		return *this->m_container; 
+	}
+};
+
+template<typename T>
+void Wrapper(T&& value) //놀랍지만 해당 인자는 이름이 있기에 'lvalue'이다.
+{
+	::InnerWrapper(std::forward<T>(value));
+}
+
+class TKClass
+{
+};
+
+void InnerWrapper(TKClass& value) { std::cout << "좌측값 레퍼런스 " << std::endl; }
+void InnerWrapper(const TKClass& value) { std::cout << "상수 좌측값 레퍼런스 " << std::endl; }
+void InnerWrapper(TKClass&& value) { std::cout << "우측값 레퍼런스 " << std::endl; }
+
 int main()
 {
 	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
+	TKClass a;
+	const TKClass b;
+
+	::Wrapper(a);
+	::Wrapper(b);
+	::Wrapper(TKClass());
+
+	//test
+	//TKCopying copy1(2);
+
+	//copy1.AddElement("Timothy");
+	//copy1.AddElement("Peco");
+	//
+	//TKCopying copy2(3);
+
+	//copy2.AddElement("Ray");
+
+	//TKCopying copy3 = TKCopying(std::forward<TKCopying>(copy1 + copy2));
+	//TKCopying copy4 = TKCopying(std::move(copy1 + copy2));
+	//TKCopying copy5 = TKCopying(copy1 + copy2);
+
+
+	//테스트 중
 	//TKNamedNodeList<std::string> list(5);
 	//list.TestCycle(3);
 
-	using TKDoubleContainer = std::vector<std::vector<int>>;
+	//TKCopying a(1);
+	//TKCopying b(a);
 
-	constexpr size_t size(5);
-	TKDoubleContainer container(0);
+	// 복사 생략
+	//TKCopying c(TKCopying(2));
+
 	
-	for (int count(1); count <= size; count++)
-		container.push_back(std::vector<int>(count));
 	
-	std::vector<int> sizedContainer(5);
 
-	std::transform(
-		container.begin(),
-		container.end(),
-		sizedContainer.begin(),
-		&std::vector<int>::size
-	);
+	// 테스트를 위한 dummy data.
+	//
+	//using TKDoubleContainer = std::vector<std::vector<int>>;
+	//
+	//constexpr size_t size(5);
+	//TKDoubleContainer container(0);
+	//
+	//for (int count(1); count <= size; count++)
+	//	container.push_back(std::vector<int>(count));
+	//
+	//std::vector<int> sizeContainer(size);
 
+	// funtion 객체 생성을 통한 멤버함수 이용.
+	//std::function<size_t(const std::vector<int>&)>functional = &std::vector<int>::size;
+
+	//std::transform(
+	//	container.cbegin(),
+	//	container.cend(),
+	//	sizeContainer.begin(),
+	//	functional
+	//);
+
+	// function 객체를 리턴하는 함수 'std::mem_fn'을 사용.
+	//std::transform(
+	//	container.cbegin(),
+	//	container.cend(),
+	//	sizeContainer.begin(),
+	//	std::mem_fn(std::vector<int>::size)
+	//);
+
+
+
+	//std::for_each(sizeContainer.cbegin(), sizeContainer.cend(), )
 
 	return 0;
 }
