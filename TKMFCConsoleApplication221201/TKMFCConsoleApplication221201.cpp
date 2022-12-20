@@ -382,17 +382,55 @@ public:
 
 // typedef(혹은 using)으로 정의한 const 타입
 typedef const std::string TKConstString;
+typedef const char* TKConstChar;
 
 void PrintText(TKConstString& text)
 {
 	std::cout << text << std::endl;
 }
 
+void PrintCharArray(TKConstChar& charArray)
+{
+	std::cout << charArray << std::endl;
+}
+
+//void DoWork(const int& n)
+//{
+//	const_cast<int&>(n) = 100;
+//}
+//
+//int a(1);
+//::DoWork(a);
+//
+//std::cout << a;
+
+class TKClass
+{
+public:
+	int id;
+	
+	TKClass(int id) : id(id) {}
+	TKClass operator+(const TKClass& other)
+	{
+		std::cout << "사용자 정의 덧셈 연산자 수행." << std::endl;
+
+		this->id += other.id;
+		return *this;
+	}
+};
+
 int main()
 {
 	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	::PrintText("ABCDE");
+	//::PrintText("ABCDE");
+	//::PrintCharArray("ABCDE");
+
+	TKClass class1(1);
+	TKClass class2(2);
+	const TKClass& cRefClass = class1 + class2;
+
+	std::cout << "result: " << cRefClass.id << std::endl;
 
 	//TKDummy dummy1{ "timothy", "peco", "ray" };
 	//
@@ -402,12 +440,6 @@ int main()
 
 	//std::cout << "dummy1\'s address: " << &dummy1 << std::endl;
 	//std::cout << "dummy2\'s address: " << &dummy2 << std::endl;
-
-
-
-
-
-
 
 	//std::vector<std::string> container{ "A", "B", "C" };
 	//
