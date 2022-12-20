@@ -320,31 +320,64 @@ public:
 	std::string name;
 	std::vector<std::string>* names;
 
-	TKDummy() : 
+	explicit TKDummy() : 
 		name(""),
-		names(nullptr)
+		names(new std::vector<std::string>)
 	{
 		std::cout << "기본 생성자 호출" << std::endl;
 	}
-	TKDummy(std::initializer_list<std::string> list) : 
+	explicit TKDummy(std::initializer_list<std::string> list) : 
 		name(*list.begin()),
 		names(new std::vector<std::string>)
 	{
+		std::cout << "유니폼 초기화 생성자 호출" << std::endl;
+
 		for (auto iter(list.begin() + 1); iter != list.end(); iter++)
 			this->names->push_back(*iter);
-
-		std::cout << "유니폼 초기화 생성자 호출" << std::endl;
 	}
-	TKDummy(TKDummy&& dummy) noexcept :
-		name(std::move(dummy.name)),
-		names(std::exchange(dummy.names, std::move(nullptr)))
+	//name(std::move(other.name)),
+	//names(std::exchange(other.names, std::move(nullptr)))
+	
+	TKDummy(TKDummy&& other) noexcept :
+		name(std::move(other.name)),
+		names(std::exchange(other.names, nullptr))
 	{
 		std::cout << "이동 생성자 호출." << std::endl;
 	}
-	//TKDummy& operator=(TKDummy&& dummy) noexcept
+	//TKDummy(TKDummy&& other) noexcept :
+	//	name(""),
+	//	names(nullptr)
 	//{
-	//	std::cout << "이동 할당자 호출." << std::endl;
+	//	std::cout << "이동 생성자 호출." << std::endl;
+
+	//	*this = std::move(other);
 	//}
+	//TKDummy& operator=(TKDummy&& other) noexcept
+	//{
+	//	std::cout << "이동 할당 생성자 호출." << std::endl;
+
+	//	if (this != &other)
+	//	{
+	//		delete this->names;
+
+	//		this->name = other.name;
+	//		this->names = other.names;
+	//		other.name = "";
+	//		other.names = nullptr;
+	//	}
+
+	//	return *this;
+	//}
+	~TKDummy()
+	{
+		std::cout << "소멸자 호출. 객체의 주소 값: " << this << std::endl;
+
+		if (this->names != nullptr)
+		{
+			std::cout << "소멸자 호출. 'names' 객체 제거. 객체의 주소 값: " << this << std::endl;
+			delete this->names;
+		}
+	}
 };
 
 int main()
@@ -352,14 +385,26 @@ int main()
 	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	TKDummy dummy1{ "timothy", "peco", "ray" };
+	
+	std::cout << "dummy1's address: " << &dummy1 << std::endl;
+
 	TKDummy dummy2(std::move(dummy1));
 
-	int a(1);
-	int b(2);
+	std::cout << "dummy1\'s address: " << &dummy1 << std::endl;
+	std::cout << "dummy2\'s address: " << &dummy2 << std::endl;
 
+	//std::vector<std::string> container{ "A", "B", "C" };
+	//
+	//container.push_back(std::move(std::string("timothy")));
+	//container.push_back(std::move(std::string("peco")));
 
-	std::cout << "address: " << dummy1.names << std::endl;
-	std::cout << "address: " << dummy2.names << std::endl;
+	//std::string newName("");
+	//std::swap(container.at(1), newName);
+	//
+	//std::cout << "New name: " << newName << std::endl;
+
+	//std::for_each(container.cbegin(), container.cend(), )
+	
 	//테스트 중
 	//TKNamedNodeList<std::string> list(5);
 	//list.TestCycle(3);
@@ -367,7 +412,7 @@ int main()
 	//TKCopying a(1);
 	//TKCopying b(a);
 	
-	// 테스트를 위한 dummy data.
+	// 테스트를 위한 other data.
 	//
 	//using TKDoubleContainer = std::vector<std::vector<int>>;
 	//

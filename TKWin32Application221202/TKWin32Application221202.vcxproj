@@ -131,18 +131,22 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TKBaseWindow.cpp" />
     <ClCompile Include="TKClockScene.cpp" />
+    <ClCompile Include="TKCustomMenu.cpp" />
     <ClCompile Include="TKDPIScale.cpp" />
     <ClCompile Include="TKGraphicScene.cpp" />
     <ClCompile Include="TKMainWindow.cpp" />
     <ClCompile Include="TKStringUtils.cpp" />
+    <ClCompile Include="TKWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TKBaseWindow.h" />
     <ClInclude Include="TKClockScene.h" />
+    <ClInclude Include="TKCustomMenu.h" />
     <ClInclude Include="TKDPIScale.h" />
     <ClInclude Include="TKGraphicScene.h" />
     <ClInclude Include="TKMainWindow.h" />
     <ClInclude Include="TKStringUtils.h" />
+    <ClInclude Include="TKWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

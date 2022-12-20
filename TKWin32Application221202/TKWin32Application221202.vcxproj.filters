@@ -42,6 +42,12 @@
     <ClCompile Include="TKStringUtils.cpp">
       <Filter>소스 파일\MSDN_Example_cpp</Filter>
     </ClCompile>
+    <ClCompile Include="TKCustomMenu.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="TKWindow.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TKBaseWindow.h">
@@ -61,6 +67,12 @@
     </ClInclude>
     <ClInclude Include="TKStringUtils.h">
       <Filter>헤더 파일\MSDN_Example_h</Filter>
+    </ClInclude>
+    <ClInclude Include="TKCustomMenu.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="TKWindow.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
