@@ -380,18 +380,34 @@ public:
 	}
 };
 
+// typedef(혹은 using)으로 정의한 const 타입
+typedef const std::string TKConstString;
+
+void PrintText(TKConstString& text)
+{
+	std::cout << text << std::endl;
+}
+
 int main()
 {
 	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	TKDummy dummy1{ "timothy", "peco", "ray" };
-	
-	std::cout << "dummy1's address: " << &dummy1 << std::endl;
+	::PrintText("ABCDE");
 
-	TKDummy dummy2(std::move(dummy1));
+	//TKDummy dummy1{ "timothy", "peco", "ray" };
+	//
+	//std::cout << "dummy1's address: " << &dummy1 << std::endl;
 
-	std::cout << "dummy1\'s address: " << &dummy1 << std::endl;
-	std::cout << "dummy2\'s address: " << &dummy2 << std::endl;
+	//TKDummy dummy2(std::move(dummy1));
+
+	//std::cout << "dummy1\'s address: " << &dummy1 << std::endl;
+	//std::cout << "dummy2\'s address: " << &dummy2 << std::endl;
+
+
+
+
+
+
 
 	//std::vector<std::string> container{ "A", "B", "C" };
 	//

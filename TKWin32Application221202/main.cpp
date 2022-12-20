@@ -11,8 +11,9 @@
 #include <atlbase.h>
 
 #include "TKMainWindow.h"
-#include "TKCustomMenu.h"
 #include "TKWindow.h"
+#include "TKCustomMenu.h"
+#include "TKTextField.h"
 
 template<typename T>
 class TKSmartPointer
@@ -28,7 +29,6 @@ public:
 			this->p_ptr->Release();
 	}
 };
-
 typedef struct __MONITOR_RECT
 {
 	std::vector<RECT> monitorRects;
@@ -47,96 +47,11 @@ typedef struct __MONITOR_RECT
 
 } TKMonitorRects;
 
+
+
+
+
 LRESULT CALLBACK WindowProcedure(HWND, UINT, WPARAM, LPARAM);
-
-class TKTextField
-{
-private:
-	TKWindow m_background;
-	TKWindow m_titleLabel;
-	TKWindow m_inputField;
-
-	TKWindow GetBackgroundWindow() const
-	{
-		return TKWindow(
-			TKWindow::PreviousWindowClass::STATIC,
-			NULL,
-			WS_CHILD | WS_VISIBLE | WS_BORDER,
-			{ 20, 10, 460, 30 }
-		);
-	}
-	TKWindow GetTitleLabel() const
-	{
-		return TKWindow(
-			TKWindow::PreviousWindowClass::STATIC,
-			L"Title: ",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT,
-			{ 5, 5, 50, 20 }
-		);
-	}
-	TKWindow GetTextField() const
-	{
-		return TKWindow(
-			TKWindow::PreviousWindowClass::EDIT,
-			L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
-			{ 55, 5, 405, 20 }
-		);
-	}
-
-public:
-	typedef struct __INTERNAL_WINDOW_HANDLER
-	{
-	public:
-		__INTERNAL_WINDOW_HANDLER(HWND hWndBackground, HWND hWndTitleLabel, HWND hWndInputField) :
-			m_hWndBackground(hWndBackground),
-			m_hWndTitleLabel(hWndTitleLabel),
-			m_hWndInputField(hWndInputField)
-		{
-		}
-
-		void DefaultFontWithSize(unsigned int size)
-		{
-			HFONT hTitleFont(::CreateFont(
-				size, 0, 0, 0, FW_MEDIUM,
-				FALSE, FALSE, FALSE,
-				ANSI_CHARSET,
-				OUT_DEFAULT_PRECIS,
-				CLIP_DEFAULT_PRECIS,
-				DEFAULT_QUALITY,
-				DEFAULT_PITCH | FF_SWISS,
-				L"Arial"
-			));
-
-			::SendMessage(this->m_hWndTitleLabel, WM_SETFONT, WPARAM(hTitleFont), TRUE);
-		}
-
-	private:
-		HWND m_hWndBackground;
-		HWND m_hWndTitleLabel;
-		HWND m_hWndInputField;
-
-	} WindowHandlers;
-
-	TKTextField() : 
-		m_background(this->GetBackgroundWindow()),
-		m_titleLabel(this->GetTitleLabel()),
-		m_inputField(this->GetTextField())
-	{
-	}
-
-	WindowHandlers CreateTextField(HWND hWndParent)
-	{
-		HWND hWndBackground(this->m_background.InsertToParentWindow(hWndParent));
-		HWND hWndTitleLabel(this->m_titleLabel.InsertToParentWindow(hWndBackground));
-		
-		return WindowHandlers(
-			hWndBackground,
-			hWndTitleLabel,
-			this->m_inputField.InsertToParentWindow(hWndBackground)
-		);
-	}
-};
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int nCmdShow)
 {
@@ -161,12 +76,21 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int nCmdSho
 		return -1;
 	}
 
+	RECT rect{ 0, 0, 640, 480 };
+
+	::AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, true);
+
+	int adjustWidth(rect.right - rect.left);
+	int adjustHeight(rect.bottom - rect.top);
+
 	HWND hwnd(::CreateWindow(
 		wc.lpszClassName,
 		L"New Window",
 		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-		300, 200,
-		500, 400,
+		CW_USEDEFAULT, 
+		CW_USEDEFAULT,
+		adjustWidth, 
+		adjustHeight,
 		NULL, NULL, NULL, NULL
 	));
 	MSG msg{ 0 };
@@ -186,11 +110,23 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 	{
 	case WM_CREATE:
 	{
+		// frame size: { 10, 20, (frame.width - 20), 50 }
+
 		TKCustomMenu::SetMenu(hWnd);
-		TKTextField textField;
-		TKTextField::WindowHandlers handlers(textField.CreateTextField(hWnd));
-		
-		handlers.DefaultFontWithSize(20);
+		TKTextField titleTextField({ 10, 20, 620, 50 });
+
+		titleTextField.CreateTextField(hWnd);
+		titleTextField.SetTitleText(L"title: ");
+
+		TKTextField subtitleTextField({ 10, 80, 620, 50 });
+
+		subtitleTextField.CreateTextField(hWnd);
+		subtitleTextField.SetTitleText(L"subtitle: ");
+
+		TKTextField contentTextField({ 10, 140, 620, 320 });
+
+		contentTextField.CreateTextField(hWnd);
+		contentTextField.SetTitleText(L"description: ");
 	}
 	return 0;
 

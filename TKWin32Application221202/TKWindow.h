@@ -21,9 +21,6 @@ typedef struct __WINDOW_FRAME
 
 } TKWindowFrame;
 
-class TKWindow;
-using TKWindowContainer = std::vector<std::unique_ptr<TKWindow>>;
-
 //TKWindow 내부에서 subWindow에 대한 관리가 가능한 기능을 추가할 것.
 //TKWindow 객체에서 frame 조정 시 resize에 대한 지원 추가할 것.
 class TKWindow
@@ -36,7 +33,6 @@ private:
 	HMENU m_hMenu;
 	HINSTANCE m_hInstance;
 	LPVOID m_lParam;
-	TKWindowContainer m_subwindows;
 
 public:
 	enum class PreviousWindowClass : unsigned short
@@ -57,7 +53,7 @@ public:
 		PreviousWindowClass windowClassType,
 		LPCWCHAR windowName,
 		DWORD style,
-		TKWindowFrame frame,
+		TKWindowFrame frame = {0, 0, 0, 0},
 		HMENU hMenu = NULL,
 		HINSTANCE hInstance = NULL,
 		LPVOID lParam = NULL) :
@@ -67,16 +63,8 @@ public:
 		m_frame(frame),
 		m_hMenu(hMenu),
 		m_hInstance(hInstance),
-		m_lParam(lParam),
-		m_subwindows(TKWindowContainer()) { }
-	TKWindow(const TKWindow& crWindow) :
-		m_className(crWindow.m_className),
-		m_windowName(crWindow.m_windowName),
-		m_style(crWindow.m_style),
-		m_frame(crWindow.m_frame),
-		m_hMenu(crWindow.m_hMenu),
-		m_hInstance(crWindow.m_hInstance),
-		m_lParam(crWindow.m_lParam) { }
+		m_lParam(lParam)
+	{ }
 
 	// Utils
 	LPCWSTR GetClassNameW(PreviousWindowClass windowClassName);
