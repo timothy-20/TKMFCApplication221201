@@ -419,12 +419,19 @@ public:
 	}
 };
 
-int main()
+void TestCodes221221()
 {
-	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
 	//::PrintText("ABCDE");
 	//::PrintCharArray("ABCDE");
+
+	char name[5]{ 112, 101, 99, 111, '\0' };
+
+	std::cout << "result: " << name << std::endl;
+
+	int ipe(13680); // little endian에서 읽을 수 있는 "pe"의 형태를 int type으로 수치화한 것입니다.
+	char cpe(ipe); // 이를 다시 char type으로 downcast하여 첫 글짜가 'p'가 맞는지 확인합니다.
+
+	std::cout << "result: " << cpe << std::endl;
 
 	TKClass class1(1);
 	TKClass class2(2);
@@ -452,14 +459,14 @@ int main()
 	//std::cout << "New name: " << newName << std::endl;
 
 	//std::for_each(container.cbegin(), container.cend(), )
-	
+
 	//테스트 중
 	//TKNamedNodeList<std::string> list(5);
 	//list.TestCycle(3);
 
 	//TKCopying a(1);
 	//TKCopying b(a);
-	
+
 	// 테스트를 위한 other data.
 	//
 	//using TKDoubleContainer = std::vector<std::vector<int>>;
@@ -491,6 +498,188 @@ int main()
 	//);
 
 	//std::for_each(sizeContainer.cbegin(), sizeContainer.cend(), )
+}
+
+
+// Test code - try.1
+// 
+//void TestBufferOverrun()
+//{
+//	constexpr size_t capacity(5);
+//	int* integerList1(new int[capacity] {1, 2, 3, 4, 5});
+//
+//	// 배열 포인터
+//	//int normalList[5]{ 1, 2, 3, 4, 5 };
+//	//int(*integerList2)[5](&normalList);
+//
+//	integerList1[6] = 2;
+//
+//	for (int i(0); i <= capacity; i++)
+//	{
+//		std::cout << integerList1[i] << std::endl;
+//	}
+//}
+//
+//using TKStringNode = TKArrayListNode<std::string>;
+//
+//TKStringNode* nodeList(new TKStringNode[3]);
+//
+//nodeList[0] = TKStringNode("timothy");
+//nodeList[1] = TKStringNode("peco");
+//nodeList[2] = TKStringNode("ray");
+//
+//nodeList[1].SetValue("another peco");
+//
+//for (int i(0); i < 3; i++)
+//{
+//	std::cout << "value: " << nodeList[i].GetValue() << std::endl;
+//}
+//
+//delete[] nodeList;
+
+template<typename T>
+struct TKArrayListNode
+{
+private:
+	T* value;
+
+public:
+	TKArrayListNode() : value(nullptr) { }
+	TKArrayListNode(const T& value) : value(new T(value)) { }
+	TKArrayListNode(const TKArrayListNode& other) : value(new T(*other.value))
+	{
+		std::cout << "복사 생성자 호출." << std::endl;
+	}
+	TKArrayListNode(TKArrayListNode&& other) noexcept : value(std::exchange(other.value, nullptr))
+	{
+		std::cout << "이동 생성자 호출." << std::endl;
+	}
+	~TKArrayListNode() { delete this->value; }
+	TKArrayListNode& operator=(const TKArrayListNode& other)
+	{
+		std::cout << "복사 할당 연산자 호출." << std::endl;
+
+		delete this->value;
+		this->value = new T(*other.value);
+
+		return *this;
+	}
+	TKArrayListNode& operator=(TKArrayListNode&& other) noexcept
+	{
+		std::cout << "이동 할당 연산자 호출." << std::endl;
+
+		if (&other != this)
+		{
+			delete this->value;
+			this->value = std::exchange(other.value, nullptr);
+		}
+
+		return *this;
+	}
+
+	// Utils
+	void SetValue(const T& value)
+	{
+		if (this->value != nullptr)
+			delete this->value;
+
+		this->value = new T(value);
+	}
+	T GetValue() const
+	{
+		return *this->value;
+	}
+};
+
+template<typename T>
+class TKArrayList
+{
+	using TKTemplateNode = TKArrayListNode<T>;
+
+private:
+	size_t m_length;
+	size_t m_capacity;
+	TKTemplateNode* m_nodeList;
+
+public:
+	TKArrayList(int capacity) :
+		m_length(0),
+		m_capacity(capacity),
+		m_nodeList(nullptr)
+	{
+		if (this->m_capacity > 0)
+			this->m_nodeList = new TKTemplateNode[this->m_capacity];
+	}
+	TKArrayList(const TKArrayList& other) :
+		m_length(other.m_length),
+		m_capacity(other.m_capacity)
+	{
+		this->m_nodeList = new TKTemplateNode[this->capacity];
+
+		for (int i(0); i < other.m_length; i++)
+			this->m_nodeList[i] = *other.m_nodeList[i];
+	}
+	virtual ~TKArrayList()
+	{
+		delete[] this->m_nodeList;
+	}
+
+	// Utils
+	bool AddElement(const T& value)
+	{
+		this->m_length++;
+
+		// 적재된 값의 갯수가 list의 범위를 넘어선 경우
+		if (this->m_length > this->m_capacity)
+			this->ExpandCapacity();
+
+		this->m_nodeList[this->m_length] = TKTemplateNode(value);
+
+		return true;
+	}
+	bool InsertElement(size_t index, const T& value)
+	{
+		if (index > this->m_capacity)
+			return false;
+
+		this->m_length++;
+
+		if (this->m_length > this->m_capacity)
+			this->ExpandCapacity();
+
+		for (int i(0); i < this->m_length; i++)
+		{
+			if (this->m_nodeList[i] != nullptr || i >= index)
+				this->m_nodeList[i + 1] = this->m_nodeList[i];
+		}
+
+		this->m_nodeList[index]->SetValue(value);
+
+		return true;
+	}
+
+	void ExpandCapacity()
+	{
+		this->m_capacity *= 2;
+
+		TKTemplateNode* newNodeList(new TKTemplateNode[this->m_capacity]);
+
+		for (int i(0); i < this->m_length; i++)
+			newNodeList[i] = *this->m_nodeList[i];
+
+		delete[] this->m_nodeList;
+		this->m_nodeList = newNodeList;
+	}
+};
+
+// 객체의 타입 비교
+// if (std::is_same_v<decltype(other.value), decltype(this->value)>)
+
+int main()
+{
+	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
+	std::cout << std::endl;
 
 	return 0;
 }
