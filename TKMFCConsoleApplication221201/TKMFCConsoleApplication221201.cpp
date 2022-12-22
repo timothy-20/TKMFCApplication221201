@@ -10,6 +10,7 @@
 #include <utility>
 #include <time.h>
 #include <chrono>
+#include <iomanip>
 
 #ifdef _DEBUG
 	#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -682,8 +683,6 @@ public:
 // 객체의 타입 비교
 // if (std::is_same_v<decltype(other.value), decltype(this->value)>)
 
-#include <iomanip>
-
 namespace TKMeasureTime
 {
 	void PrintWithSeconds(std::function<void()> callback)
@@ -714,12 +713,43 @@ namespace TKMeasureTime
 	}
 }
 
+void PrintNowTime()
+{
+	auto now(std::chrono::system_clock::now());
+	std::time_t nowTime(std::chrono::system_clock::to_time_t(now));
+	char nowTimeChar[30];
 
+	::ctime_s(nowTimeChar, sizeof(nowTimeChar), &nowTime);
+
+	std::cout << "Now time: " << nowTimeChar << std::endl;
+}
+
+void PrintNowSummaryTime()
+{
+	std::time_t time(std::time(0));
+	std::tm tm{};
+
+	::localtime_s(&tm, &time);
+
+	std::cout << "Hour: " << (tm.tm_hour - 12) << "h" << std::endl;
+	std::cout << "Minute: " << tm.tm_min << "m" << std::endl;
+}
+
+std::function<std::chrono::duration<double>&(void)> GetDurationTime()
+{
+	auto now(std::chrono::system_clock::now());
+	
+	return [=] () -> std::chrono::duration<double>& { 
+		std::chrono::duration<double> duration((std::chrono::system_clock::now() - now));
+		return duration; 
+	};
+}
 
 int main()
 {
 	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-	
+
+	//::GetDurationTime()().count();
 	
 
 	//TKArrayList<std::string> list(3);
