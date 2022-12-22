@@ -8,6 +8,8 @@
 #include <functional>
 #include <algorithm>
 #include <utility>
+#include <time.h>
+#include <chrono>
 
 #ifdef _DEBUG
 	#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -594,37 +596,39 @@ public:
 template<typename T>
 class TKArrayList
 {
-	using TKTemplateNode = TKArrayListNode<T>;
-
 private:
 	size_t m_length;
 	size_t m_capacity;
-	TKTemplateNode* m_nodeList;
+	T* m_container;
 
 public:
-	TKArrayList(int capacity) :
+	TKArrayList(int capacity = 1) :
 		m_length(0),
 		m_capacity(capacity),
-		m_nodeList(nullptr)
+		m_container(nullptr)
 	{
 		if (this->m_capacity > 0)
-			this->m_nodeList = new TKTemplateNode[this->m_capacity];
+			this->m_container = new T[this->m_capacity];
 	}
 	TKArrayList(const TKArrayList& other) :
 		m_length(other.m_length),
 		m_capacity(other.m_capacity)
 	{
-		this->m_nodeList = new TKTemplateNode[this->capacity];
+		this->m_container = new T[this->capacity];
 
 		for (int i(0); i < other.m_length; i++)
-			this->m_nodeList[i] = *other.m_nodeList[i];
+			this->m_container[i] = *other.m_container[i];
 	}
 	virtual ~TKArrayList()
 	{
-		delete[] this->m_nodeList;
+		delete[] this->m_container;
 	}
 
 	// Utils
+	T operator[](size_t index) const
+	{
+		return this->m_container[index];
+	}
 	bool AddElement(const T& value)
 	{
 		this->m_length++;
@@ -633,7 +637,7 @@ public:
 		if (this->m_length > this->m_capacity)
 			this->ExpandCapacity();
 
-		this->m_nodeList[this->m_length] = TKTemplateNode(value);
+		this->m_container[this->m_length - 1] = value;
 
 		return true;
 	}
@@ -647,38 +651,100 @@ public:
 		if (this->m_length > this->m_capacity)
 			this->ExpandCapacity();
 
+		T temp;
+
 		for (int i(0); i < this->m_length; i++)
 		{
-			if (this->m_nodeList[i] != nullptr || i >= index)
-				this->m_nodeList[i + 1] = this->m_nodeList[i];
+			if (i >= index)
+				std::swap(temp, this->m_container[i]);
 		}
 
-		this->m_nodeList[index]->SetValue(value);
+		this->m_container[index] = value;
 
 		return true;
 	}
+	// 삭제 Utils 함수 구현
 
 	void ExpandCapacity()
 	{
 		this->m_capacity *= 2;
 
-		TKTemplateNode* newNodeList(new TKTemplateNode[this->m_capacity]);
+		T* newNodeList(new T[this->m_capacity]);
 
-		for (int i(0); i < this->m_length; i++)
-			newNodeList[i] = *this->m_nodeList[i];
+		for (int i(0); i < (this->m_length - 1); i++)
+			newNodeList[i] = this->m_container[i];
 
-		delete[] this->m_nodeList;
-		this->m_nodeList = newNodeList;
+		delete[] this->m_container;
+		this->m_container = newNodeList;
 	}
 };
 
 // 객체의 타입 비교
 // if (std::is_same_v<decltype(other.value), decltype(this->value)>)
 
+#include <iomanip>
+
+namespace TKMeasureTime
+{
+	void PrintWithSeconds(std::function<void()> callback)
+	{
+		clock_t start(clock());
+		callback();
+		std::cout << "실행에 소요한 초: " << ((int)clock() - start) / (CLOCKS_PER_SEC / 1000) << "'s" << std::endl;
+	}
+
+	using TKChronoSystemClock = std::chrono::system_clock;
+	template<typename TYPE, typename PERIOD = std::ratio<1>> using TKChronoDuration = std::chrono::duration<TYPE, PERIOD>;
+
+	void PrintWithMicroseconds(std::function<void()> callback)
+	{
+		TKChronoSystemClock::time_point startPoint(TKChronoSystemClock::now());
+
+		callback();
+
+		TKChronoSystemClock::time_point endPoint(TKChronoSystemClock::now());
+		double sDuration(TKChronoDuration<double>(endPoint - startPoint).count());
+		double mDuration(TKChronoDuration<double, std::milli>(endPoint - startPoint).count());
+
+		std::cout << std::setprecision(7);
+	 	std::cout << std::fixed; // std::cout.unsetf(std::ios::scientific);
+		std::cout << "실행에 소요한 초: " << sDuration << "(s)" << std::endl;
+		std::cout << std::setprecision(2);
+		std::cout << "실행에 소요한 밀리초: " << mDuration << "(ms)" << std::endl;
+	}
+}
+
+
+
 int main()
 {
 	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	
+	
 
+	//TKArrayList<std::string> list(3);
+
+	//TKMeasureTime::PrintWithMicroseconds([&list]() -> void {
+	//	// 지정 capacity보다 많은 element를 적재할 경우
+	//	list.AddElement("timothy");
+	//	list.AddElement("peco");
+	//	list.AddElement("ray");
+	//	list.AddElement("another one");
+
+	//	// 배열 리스트의 1번에 element를 삽입한 경우.
+	//	list.InsertElement(1, "i'm no.2");
+
+	//	// 지정 capacity보다 많은 element를 삽입한 경우
+	//	list.InsertElement(2, "i'm no.3");
+	//	list.InsertElement(3, "i'm no.4");
+	//	list.InsertElement(4, "i'm no.5");
+	//});
+
+	//TKMeasureTime::PrintWithMicroseconds([&list]() -> void {
+	//	for (int i(0); list[i].compare(""); i++)
+	//		std::cout << "result: " << list[i] << std::endl;
+	//});
+	
 	std::cout << std::endl;
 
 	return 0;
