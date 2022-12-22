@@ -737,20 +737,29 @@ void PrintNowSummaryTime()
 
 std::function<std::chrono::duration<double>&(void)> GetDurationTime()
 {
-	auto now(std::chrono::system_clock::now());
+	auto startTime(std::chrono::system_clock::now());
 	
 	return [=] () -> std::chrono::duration<double>& { 
-		std::chrono::duration<double> duration((std::chrono::system_clock::now() - now));
+		std::chrono::duration<double> duration((std::chrono::system_clock::now() - startTime));
 		return duration; 
 	};
+}
+
+long GetFibonacci(uint32_t value)
+{
+	if (value < 2)
+		return value;
+
+	return ::GetFibonacci(value - 1) + ::GetFibonacci(value - 2);
 }
 
 int main()
 {
 	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//::GetDurationTime()().count();
-	
+	std::chrono::steady_clock clock;
+	std::chrono::seconds s;
+
 
 	//TKArrayList<std::string> list(3);
 
