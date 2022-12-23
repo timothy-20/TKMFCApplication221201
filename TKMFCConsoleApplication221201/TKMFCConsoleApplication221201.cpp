@@ -753,12 +753,88 @@ long GetFibonacci(uint32_t value)
 	return ::GetFibonacci(value - 1) + ::GetFibonacci(value - 2);
 }
 
+#include <thread>
+
+template<typename T, typename... Args>
+void Wait(uint32_t seconds, bool isAsync, T&& func, Args... parameters)
+{
+	std::function<typename std::result_of<T(Args...)>::type()> task(std::bind(std::forward<T>(func), std::forward<Args>(parameters)...));
+
+	if (isAsync)
+	{
+		std::thread([seconds, task]() -> void
+			{
+				std::this_thread::sleep_for(std::chrono::seconds(seconds));
+				task();
+			}
+		).detach();
+
+		return;
+	}
+
+	std::this_thread::sleep_for(std::chrono::seconds(seconds));
+	task();
+}
+
+
+
+
+
+
+struct TKRegularCopare
+{
+	bool operator()(int n1, int n2) { return (n1 > n2); }
+};
+
+struct TKReverceCompare
+{
+	bool operator()(int n1, int n2) { return (n1 < n2); }
+};
+
+// 예제: https://koreanfoodie.me/841
+template <typename Container, typename Compare>
+void BubbleSort(Container& container, const Compare compare)
+{
+	for (int i(0); i < container.size(); i++)
+	{
+
+	}
+}
+
+template <template<typename ...> class T, typename ...Ts>
+struct IsInstanceOf : public std::false_type
+{};
+
+template <template<typename ...> class T, typename ...Ts>
+struct IsInstanceOf<T, T<Ts...>> : public std::true_type
+{};
+
+template <typename T>
+struct TKTemplate1 {};
+
+template <typename T>
+struct TKTemplate2
+{
+	static_assert(IsInstanceOf<TKTemplate1, T>::value, "Fail");
+};
+
+
 int main()
 {
 	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	std::chrono::steady_clock clock;
-	std::chrono::seconds s;
+	//TKTemplate2<int> temp1;
+	//TKTemplate2<TKTemplate1<int>> temp2;
+
+	
+
+
+
+
+
+
+
+
 
 
 	//TKArrayList<std::string> list(3);
