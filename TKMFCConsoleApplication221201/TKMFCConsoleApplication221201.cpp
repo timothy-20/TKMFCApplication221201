@@ -819,6 +819,22 @@ struct TKTemplate2
 };
 
 
+// template specialization
+template <typename T1, typename T2>
+class TKMap
+{
+
+};
+
+template <typename T>
+class TKMap<std::string, T>
+{
+
+};
+
+#include <list>
+#include <forward_list>
+
 int main()
 {
 	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
