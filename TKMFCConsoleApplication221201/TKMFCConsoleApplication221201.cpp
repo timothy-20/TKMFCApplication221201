@@ -776,20 +776,8 @@ void Wait(uint32_t seconds, bool isAsync, T&& func, Args... parameters)
 	task();
 }
 
-
-
-
-
-
-struct TKRegularCopare
-{
-	bool operator()(int n1, int n2) { return (n1 > n2); }
-};
-
-struct TKReverceCompare
-{
-	bool operator()(int n1, int n2) { return (n1 < n2); }
-};
+struct TKRegularCopare { bool operator()(int n1, int n2) { return (n1 > n2); } };
+struct TKReverceCompare { bool operator()(int n1, int n2) { return (n1 < n2); } };
 
 // 예제: https://koreanfoodie.me/841
 template <typename Container, typename Compare>
@@ -801,63 +789,7 @@ void BubbleSort(Container& container, const Compare compare)
 	}
 }
 
-template <template<typename ...> class T, typename ...Ts>
-struct IsInstanceOf : public std::false_type
-{};
 
-template <template<typename ...> class T, typename ...Ts>
-struct IsInstanceOf<T, T<Ts...>> : public std::true_type
-{};
-
-template <typename T>
-struct TKTemplate1 {};
-
-template <typename T>
-struct TKTemplate2
-{
-	static_assert(IsInstanceOf<TKTemplate1, T>::value, "Fail");
-};
-
-
-// template specialization
-template <class T>
-struct PTS
-{
-	enum
-	{
-		IsPointer = 0,
-		IsPointerToDataMember = 0
-	};
-};
-
-template <class T>
-struct PTS<T*>
-{
-	enum
-	{
-		IsPointer = 1,
-		IsPointerToDataMember = 0
-	};
-};
-
-template <class T, class U>
-struct PTS<T U::*> // how to use?
-{
-	enum
-	{
-		IsPointer = 0,
-		IsPointerToDataMember = 1
-	};
-};
-
-//TKTemplate2<int> temp1;
-//TKTemplate2<TKTemplate1<int>> temp2;
-
-//if (static_cast<bool>(::PTS<TKStorage*>::IsPointer))
-//	std::cout << "S is pointer\n";
-
-//if (static_cast<bool>(::PTS<int TKStorage::*>::IsPointerToDataMember))
-//	std::cout << "S is pointer to data member\n";
 
 template <typename T>
 class TKBag
@@ -982,114 +914,22 @@ public:
 //cBag.Print();
 //cpBag.Print();
 
-template <typename KEY, typename VALUE> 
-class TKDictionary
+// Memory pool implementation
+#include <Windows.h>
+template <typename T, int ALLOC_BLOCK_SIZE = 50>
+class TKMemoryPool
 {
-protected:
-	KEY* m_keys;
-	VALUE* m_values;
-	int m_size;
-	int m_maxSize;
+private:
 
 public:
-	TKDictionary(int size) : 
-		m_size(0),
-		m_maxSize(1)
-	{
-		while (size >= this->m_maxSize)
-			this->m_maxSize *= 2;
-
-		this->m_keys = new KEY[this->m_maxSize];
-		this->m_values = new VALUE[this->m_maxSize];
-	}
-
-	virtual ~TKDictionary()
-	{
-		delete[] this->m_keys;
-		delete[] this->m_values;
-	}
-
-	// utils
-	virtual void Add(KEY key, VALUE value)
-	{
-		KEY* keyTemp(nullptr);
-		VALUE* valueTemp(nullptr);
-
-		if (this->m_size + 1 > this->m_maxSize)
-		{
-			this->m_maxSize *= 2;
-			keyTemp = new KEY[this->m_maxSize];
-			valueTemp = new VALUE[this->m_maxSize];
-
-			for (int i(0); i < this->m_size; i++)
-			{
-				keyTemp[i] = this->m_keys[i];
-				valueTemp[i] = this->m_values[i];
-			}
-
-			keyTemp[this->m_size] = key;
-			valueTemp[this->m_size] = value;
-			delete[] this->m_keys;
-			delete[] this->m_values;
-			this->m_keys = keyTemp;
-			this->m_values = valueTemp;
-		}
-		else
-		{
-			this->m_keys[this->m_size] = key;
-			this->m_values[this->m_size] = value;
-		}
-
-		this->m_size++;
-	}
-
-	virtual void Print() const
-	{
-		for (int i(0); i < this->m_size; i++)
-			std::cout << "{ " << this->m_keys[i] << ", " << this->m_values[i] << " }" << std::endl;
-	}
-};
-
-template <typename VALUE>
-class TKNumericDictionary : public TKDictionary<int, VALUE>
-{
-public:
-	TKNumericDictionary(int size) : TKNumericDictionary::TKDictionary(size)
-	{}
-
-	void BubbleSort()
-	{
-		int smallest(0);
-
-		for (int i(0); i < this->m_size - 1; i++)
-		{
-			for (int j(i); j < this->m_size; j++)
-			{
-				if (this->m_keys[j] < this->m_keys[smallest])
-					smallest = j;
-			}
-
-			std::swap(this->m_keys[i], this->m_keys[smallest]);
-			std::swap(this->m_values[i], this->m_values[smallest]);
-		}
-	}
 };
 
 int main()
 {
 	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	TKNumericDictionary<const char*> dictionary(5);
-
-	dictionary.Add(43, "peco");
-	dictionary.Add(26, "timothy");
-	dictionary.Add(74, "lay");
-	dictionary.BubbleSort();
-	dictionary.Print();
 
 
-
-	
 
 
 
