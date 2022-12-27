@@ -820,34 +820,276 @@ struct TKTemplate2
 
 
 // template specialization
-template <typename T1, typename T2>
-class TKMap
+template <class T>
+struct PTS
 {
+	enum
+	{
+		IsPointer = 0,
+		IsPointerToDataMember = 0
+	};
+};
 
+template <class T>
+struct PTS<T*>
+{
+	enum
+	{
+		IsPointer = 1,
+		IsPointerToDataMember = 0
+	};
+};
+
+template <class T, class U>
+struct PTS<T U::*> // how to use?
+{
+	enum
+	{
+		IsPointer = 0,
+		IsPointerToDataMember = 1
+	};
+};
+
+//TKTemplate2<int> temp1;
+//TKTemplate2<TKTemplate1<int>> temp2;
+
+//if (static_cast<bool>(::PTS<TKStorage*>::IsPointer))
+//	std::cout << "S is pointer\n";
+
+//if (static_cast<bool>(::PTS<int TKStorage::*>::IsPointerToDataMember))
+//	std::cout << "S is pointer to data member\n";
+
+template <typename T>
+class TKBag
+{
+private:
+	T* m_element;
+	int m_size;
+	int m_maxSize;
+
+public:
+	TKBag() :
+		m_element(new T[1]),
+		m_size(0),
+		m_maxSize(1)
+	{ }
+	~TKBag()
+	{
+		delete[] this->m_element;
+	}
+
+	// utils
+	void Add(T value)
+	{
+		T* temp;
+
+		if (this->m_size + 1 > this->m_maxSize)
+		{
+			this->m_maxSize *= 2;
+			temp = new T[this->m_maxSize];
+
+			for (int i(0); i < this->m_size; i++)
+				temp[i] = this->m_element[i];
+
+			temp[this->m_size++] = value;
+			delete[] this->m_element;
+			this->m_element = temp;
+			return;
+		}
+
+		this->m_element[this->m_size++] = value;
+	}
+	void Print() const
+	{
+		for (int i(0); i < this->m_size; i++)
+			std::cout << this->m_element[i] << " ";
+
+		std::cout << std::endl;
+	}
 };
 
 template <typename T>
-class TKMap<std::string, T>
+class TKBag<T*>
 {
+private:
+	T* m_element;
+	int m_size;
+	int m_maxSize;
+
+public:
+	TKBag() :
+		m_element(new T[1]),
+		m_size(0),
+		m_maxSize(1)
+	{ }
+	~TKBag()
+	{
+		delete[] this->m_element;
+	}
+
+	// utils
+	void Add(const T* value)
+	{
+		T* temp;
+
+		if (value == nullptr)
+		{
+			std::cout << "Unable to get pointer value." << std::endl;
+			return;
+		}
+
+		if (this->m_size + 1 > this->m_maxSize)
+		{
+			this->m_maxSize *= 2;
+			temp = new T[this->m_maxSize];
+
+			for (int i(0); i < this->m_size; i++)
+				temp[i] = this->m_element[i];
+
+			temp[this->m_size++] = *value;
+			delete[] this->m_element;
+			this->m_element = temp;
+			return;
+		}
+
+		this->m_element[this->m_size++] = *value;
+	}
+	void Print() const
+	{
+		for (int i(0); i < this->m_size; i++)
+			std::cout << this->m_element[i] << " ";
+
+		std::cout << std::endl;
+	}
 
 };
 
-#include <list>
-#include <forward_list>
+//TKBag<char> cBag;
+//TKBag<char*> cpBag;
+//
+//cBag.Add('a');
+//cBag.Add('b');
+//cBag.Add('c');
+//cBag.Add('d');
+//
+//const char* cp1("timothy");
+//const char* cp2("peco");
+//const char* cp3("lay");
+//
+//cpBag.Add(cp1);
+//cpBag.Add(cp2);
+//cpBag.Add(cp3);
+//cBag.Print();
+//cpBag.Print();
+
+template <typename KEY, typename VALUE> 
+class TKDictionary
+{
+protected:
+	KEY* m_keys;
+	VALUE* m_values;
+	int m_size;
+	int m_maxSize;
+
+public:
+	TKDictionary(int size) : 
+		m_size(0),
+		m_maxSize(1)
+	{
+		while (size >= this->m_maxSize)
+			this->m_maxSize *= 2;
+
+		this->m_keys = new KEY[this->m_maxSize];
+		this->m_values = new VALUE[this->m_maxSize];
+	}
+
+	virtual ~TKDictionary()
+	{
+		delete[] this->m_keys;
+		delete[] this->m_values;
+	}
+
+	// utils
+	virtual void Add(KEY key, VALUE value)
+	{
+		KEY* keyTemp(nullptr);
+		VALUE* valueTemp(nullptr);
+
+		if (this->m_size + 1 > this->m_maxSize)
+		{
+			this->m_maxSize *= 2;
+			keyTemp = new KEY[this->m_maxSize];
+			valueTemp = new VALUE[this->m_maxSize];
+
+			for (int i(0); i < this->m_size; i++)
+			{
+				keyTemp[i] = this->m_keys[i];
+				valueTemp[i] = this->m_values[i];
+			}
+
+			keyTemp[this->m_size] = key;
+			valueTemp[this->m_size] = value;
+			delete[] this->m_keys;
+			delete[] this->m_values;
+			this->m_keys = keyTemp;
+			this->m_values = valueTemp;
+		}
+		else
+		{
+			this->m_keys[this->m_size] = key;
+			this->m_values[this->m_size] = value;
+		}
+
+		this->m_size++;
+	}
+
+	virtual void Print() const
+	{
+		for (int i(0); i < this->m_size; i++)
+			std::cout << "{ " << this->m_keys[i] << ", " << this->m_values[i] << " }" << std::endl;
+	}
+};
+
+template <typename VALUE>
+class TKNumericDictionary : public TKDictionary<int, VALUE>
+{
+public:
+	TKNumericDictionary(int size) : TKNumericDictionary::TKDictionary(size)
+	{}
+
+	void BubbleSort()
+	{
+		int smallest(0);
+
+		for (int i(0); i < this->m_size - 1; i++)
+		{
+			for (int j(i); j < this->m_size; j++)
+			{
+				if (this->m_keys[j] < this->m_keys[smallest])
+					smallest = j;
+			}
+
+			std::swap(this->m_keys[i], this->m_keys[smallest]);
+			std::swap(this->m_values[i], this->m_values[smallest]);
+		}
+	}
+};
 
 int main()
 {
 	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//TKTemplate2<int> temp1;
-	//TKTemplate2<TKTemplate1<int>> temp2;
+	TKNumericDictionary<const char*> dictionary(5);
+
+	dictionary.Add(43, "peco");
+	dictionary.Add(26, "timothy");
+	dictionary.Add(74, "lay");
+	dictionary.BubbleSort();
+	dictionary.Print();
+
+
 
 	
-
-
-
-
-
 
 
 
