@@ -12,9 +12,9 @@
 #include <chrono>
 #include <iomanip>
 
-#ifdef _DEBUG
-	#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
-#endif // _DEBUG
+//#ifdef _DEBUG
+//	#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
+//#endif // _DEBUG
 
 typedef struct __ONLY_DOUBLE
 {
@@ -919,18 +919,111 @@ public:
 template <typename T, int ALLOC_BLOCK_SIZE = 50>
 class TKMemoryPool
 {
-private:
-
 public:
+	static UCHAR* m_freePtr;
+
+	static VOID AllocBlock()
+	{
+		m_freePtr = new UCHAR[sizeof(T) * ALLOC_BLOCK_SIZE];
+		UCHAR** current(reinterpret_cast<UCHAR**>(m_freePtr));
+		UCHAR* next(m_freePtr);
+
+		for (INT i(0); i < ALLOC_BLOCK_SIZE - 1; ++i)
+		{
+			next += sizeof(T);
+			*current = next;
+			current = reinterpret_cast<UCHAR**>(next);
+		}
+
+		*current = 0;
+
+		std::cout << "[!] freePtr: " << (int)m_freePtr << std::endl;
+	}
+
+	~TKMemoryPool() = default;
+
+	static VOID* operator new(std::size_t allocLength)
+	{
+		if (m_freePtr == nullptr)
+			AllocBlock();
+
+		UCHAR* returnPtr(m_freePtr);
+		m_freePtr = *reinterpret_cast<UCHAR**>(returnPtr);
+
+		std::cout << "[!] returnPtr: " << (int)returnPtr << std::endl;
+		std::cout << "[!] freePtr: " << (int)m_freePtr << std::endl;
+
+		return returnPtr;
+	}
+	static VOID operator delete(VOID* deletePtr)
+	{
+		*reinterpret_cast<UCHAR**>(deletePtr) = m_freePtr;
+		m_freePtr = static_cast<UCHAR*>(deletePtr);
+	}
+};
+
+template <typename T, int ALLOC_BLOCK_SIZE>
+UCHAR* TKMemoryPool<T, ALLOC_BLOCK_SIZE>::m_freePtr;
+
+class TKStorage : public TKMemoryPool<int, 10>
+{
+public:
+	int idList[50];
+};
+
+class TKNormalStorage
+{
+public:
+	int idList[50];
+
+	void* operator new(std::size_t allocLength)
+	{
+		void* returnPtr(malloc(allocLength));
+
+		std::cout << "[!@] alloc: " << (int)returnPtr << std::endl;
+
+		return returnPtr;
+	}
+
+	void operator delete(void* deletePtr) noexcept
+	{
+		std::cout << "[!@] delete: " << (int)deletePtr << std::endl;
+
+		free(deletePtr);
+	}
 };
 
 int main()
 {
 	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
+	int count(0);
 
+	while (count < 5)
+	{
+		TKStorage* storage(new TKStorage);
+		std::cout << "freePtr: " << (int)storage->m_freePtr << std::endl;
+		delete storage;
 
+		std::cout << std::endl;
 
+		count++;
+	}
+
+	count = 0;
+
+	while (count < 5)
+	{
+		TKNormalStorage* normalStorage(new TKNormalStorage);
+		delete normalStorage;
+
+		std::cout << std::endl;
+
+		count++;
+	}
+
+	
+	
 
 
 
