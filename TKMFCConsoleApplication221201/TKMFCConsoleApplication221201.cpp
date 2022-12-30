@@ -323,39 +323,88 @@ UCHAR* TKMemoryPool<T, ALLOC_BLOCK_SIZE>::m_freePtr;
 #include "TKMeasureTime.h"
 #include "TKArrayList.hpp"
 
+template <typename T>
+struct TKNode
+{
+	T m_value;
+	TKNode<T>* m_next;
+
+	TKNode(const T& value) :
+		m_value(value),
+		m_next(nullptr)
+	{}
+};
+
+template <typename T>
+class TKForwardList
+{
+private:
+	std::shared_ptr<TKNode<T>> front;
+
+public:
+	TKForwardList() : front(nullptr)
+	{}
+
+	//Utils
+	void PushForward(const T& value)
+	{
+		std::shared_ptr<TKNode<T>> node(std::make_shared<TKNode<T>>(value));
+		
+		if (this->front == nullptr)
+		{
+			this->front.swap(node);
+			return;
+		}
+
+		TKNode<T>* refNode(node.get());
+		TKNode<T>* refFront(this->front.get());
+
+		refNode->m_next = refFront;
+		refFront = refNode;
+	}
+};
+
 int main()
 {
 	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	TKArrayList<std::string> list(3);
+	TKForwardList<std::string> list;
 
-	TKMeasureTime::PrintWithMicroseconds([&list]() -> void {
-		// 지정 capacity보다 많은 element를 적재할 경우
-		list.AddElement("timothy");
-		list.AddElement("peco");
-		list.AddElement("ray");
-		list.AddElement("another one");
-
-		// 배열 리스트의 1번에 element를 삽입한 경우.
-		list.InsertElement(1, "i'm no.2");
-
-		// 지정 capacity보다 많은 element를 삽입한 경우.
-		list.InsertElement(2, "i'm no.3");
-		list.InsertElement(3, "i'm no.4");
-		list.InsertElement(4, "i'm no.5");
-
-		// 특정 위치의 element를 제거한 경우.
-		list.RemoveElement(2);
-
-		std::cout << std::endl;
-	});
-
-	TKMeasureTime::PrintWithMicroseconds([&list]() -> void {
-		for (int i(0); list[i].compare(""); i++)
-			std::cout << "result: " << list[i] << std::endl;
-	});
+	list.PushForward("timothy");
+	list.PushForward("peco");
+	list.PushForward("lay");
+	
 	
 	std::cout << std::endl;
 
 	return 0;
 }
+
+// 22.12.30. test code
+//TKArrayList<std::string> list(3);
+
+//TKMeasureTime::PrintWithMicroseconds([&list]() -> void {
+//	// 지정 capacity보다 많은 element를 적재할 경우
+//	list.AddElement("timothy");
+//	list.AddElement("peco");
+//	list.AddElement("ray");
+//	list.AddElement("another one");
+
+//	// 배열 리스트의 1번에 element를 삽입한 경우.
+//	list.InsertElement(1, "i'm no.2");
+
+//	// 지정 capacity보다 많은 element를 삽입한 경우.
+//	list.InsertElement(2, "i'm no.3");
+//	list.InsertElement(3, "i'm no.4");
+//	list.InsertElement(4, "i'm no.5");
+
+//	// 특정 위치의 element를 제거한 경우.
+//	list.RemoveElement(2);
+
+//	std::cout << std::endl;
+//});
+
+//TKMeasureTime::PrintWithMicroseconds([&list]() -> void {
+//	for (int i(0); list[i].compare(""); i++)
+//		std::cout << "result: " << list[i] << std::endl;
+//});
