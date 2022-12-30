@@ -128,14 +128,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="TKDummyList.cpp" />
+    <ClCompile Include="TKMeasureTime.cpp" />
     <ClCompile Include="TKMFCConsoleApplication221201.cpp" />
     <ClCompile Include="TKNumberUtil.cpp" />
     <ClCompile Include="TKStringUtil.cpp" />
+    <ClCompile Include="TKTime.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="TKArrayList.hpp" />
     <ClInclude Include="TKDummyList.h" />
+    <ClInclude Include="TKMeasureTime.h" />
     <ClInclude Include="TKNumberUtil.h" />
     <ClInclude Include="TKStringUtil.h" />
+    <ClInclude Include="TKTime.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
