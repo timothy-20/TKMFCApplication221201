@@ -364,17 +364,12 @@ public:
 	}
 };
 
-int main()
+void GetAdjacencyMatrix(int node, int edge)
 {
-	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	int* adj[100];
 
-	int node(0), edge(0);
-	int adj[100][100];
-
-	std::cout << "node: ";
-	std::cin >> node;
-	std::cout << "edge: ";
-	std::cin >> edge;
+	for (int i(0); i < 100; i++)
+		adj[i] = new int[100];
 
 	for (int i(0); i < edge; i++)
 	{
@@ -382,9 +377,116 @@ int main()
 
 		std::cout << "insert coordinates: ";
 		std::cin >> n1 >> n2;
+
+		adj[n1][n2] = 1;
+		adj[n2][n1] = 1;
 	}
+
+	for (int i(0); i < node; i++)
+	{
+		for (int j(0); j < node; j++)
+		{
+			if (adj[i][j] != 1)
+				adj[i][j] = 0;
+
+			std::cout << adj[i][j] << " ";
+		}
+
+		std::cout << '\n';
+	}
+
+	for (int i(0); i < 100; i++)
+		delete adj[i];
+}
+
+bool SuffleSong(uint32_t count)
+{
+	if (count > 1000)
+		return false;
+
+	// 곡 정보
+	std::vector<std::pair<uint32_t, uint32_t>> songInfo;
+
+	for (int i(0); i < count; i++)
+	{
+		uint32_t genreNumber(0), songLength(0);
+
+		std::cin >> genreNumber >> songLength;
+		
+		songInfo.push_back(std::make_pair(genreNumber, songLength));
+	}
+
+	// 장르 갯수
+	uint32_t genreLength(0);
+
+	std::cin >> genreLength;
+
+	if (genreLength > 9)
+		return false;
+
+	uint32_t** adj = nullptr;
+
+	for (int i(0); i < genreLength; i++)
+		adj[i] = new uint32_t;
+
+	for (int i(0); i < genreLength; i++)
+	{
+		char* code(new char);
 	
-	std::cout << std::endl;
+		std::cin >> code;
+
+		for (int j(0); code[j] == '\0'; j++)
+		{
+			if (code[j] == 'Y')
+				adj[i][j] = 1;
+
+			else if (code[j] == 'N')
+				adj[i][j] = 0;
+		}
+	}
+
+	// 범주
+	uint32_t n1(0), n2(0);
+
+	std::cin >> n1 >> n2;
+
+	if (n2 < n1 || n2 > 1000000000)
+		return false;
+
+
+
+	return true;
+}
+
+template <typename T, size_t LENGTH>
+void Permutation(T(&list)[LENGTH], int s)
+{
+	if (s == LENGTH)
+	{
+		for (int i(0); i < LENGTH; i++)
+			std::cout << list[i] << ' ';
+
+		std::cout << '\n';
+		return;
+	}
+
+	for (int i(s); i < LENGTH; i++)
+	{
+		std::swap(list[s], list[i]);
+		::Permutation(list, s + 1);
+		std::swap(list[s], list[i]);
+	}
+}
+
+int main()
+{
+	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
+	std::string list[3]{ "timothy", "peco", "lay" };
+	
+	::Permutation(list, 0);
+
+
 
 	return 0;
 }
