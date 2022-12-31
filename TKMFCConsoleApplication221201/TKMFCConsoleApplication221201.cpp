@@ -368,19 +368,35 @@ int main()
 {
 	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	TKForwardList<std::string> list;
+	int node(0), edge(0);
+	int adj[100][100];
 
-	list.PushForward("timothy");
-	list.PushForward("peco");
-	list.PushForward("lay");
-	
+	std::cout << "node: ";
+	std::cin >> node;
+	std::cout << "edge: ";
+	std::cin >> edge;
+
+	for (int i(0); i < edge; i++)
+	{
+		int n1(0), n2(0);
+
+		std::cout << "insert coordinates: ";
+		std::cin >> n1 >> n2;
+	}
 	
 	std::cout << std::endl;
 
 	return 0;
 }
 
-// 22.12.30. test code
+// 22.12.30 test code_20.19
+//TKForwardList<std::string> list;
+
+//list.PushForward("timothy");
+//list.PushForward("peco");
+//list.PushForward("lay");
+
+// 22.12.30. test code_13.43
 //TKArrayList<std::string> list(3);
 
 //TKMeasureTime::PrintWithMicroseconds([&list]() -> void {
