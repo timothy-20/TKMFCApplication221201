@@ -611,12 +611,9 @@ private:
 		}
 	}
 
-
-	void PlayListPatternsCombination(std::vector<TKSong> combination, int index = 0, int depth = 0)
+	void PlayListPatternsCombination(std::vector<TKSong> combination, int index = 0)
 	{
-		int r(combination.size());
-
-		if (r == index)
+		if (combination.size() == index)
 		{
 			this->m_patterns.push_back(combination);
 			return;
@@ -626,37 +623,46 @@ private:
 		{
 			combination[index] = this->m_songs[i];
 
-			this->PlayListPatternsCombination(combination, index + 1, depth);
+			this->PlayListPatternsCombination(combination, index + 1);
 		}
 	}
 
 public:
 	TKPlayListShuffler(const TKPlayList& totalPlayList) : m_songs(totalPlayList.GetPlayList())
 	{
-		int n(2);
-		int maxLength(0);
-		std::vector<TKSong> pattern(n);
+		
 
-		this->PlayListPatternsCombination(pattern);
 
-		for (TKSong element : this->m_songs)
+
+		for (auto playList : this->m_patterns)
 		{
-			if (element.playTime > maxLength)
-				maxLength = element.playTime;
-		}
+			std::cout << "Play list: " << std::endl;
 
-		for (int i(1); i <= maxLength; i++)
-		{
+			for (auto song : playList.GetPlayList())
+				std::cout << song.genre << ' ' << song.playTime << std::endl;
 
+			std::cout << '\n';
 		}
 	}
 
 	// Utils
 	std::vector<TKPlayList> PatternWithTotalPlayTime(int totalPlayTime)
 	{
-		std::vector<TKPlayList> specificPattern;
+		for (int i(1); i < this->m_songs.size(); i++)
+		{
+			std::vector<TKSong> pattern(i);
 
+			this->PlayListPatternsCombination(pattern);
+		}
 
+		this->m_patterns.erase(std::remove_if(this->m_patterns.begin(), this->m_patterns.end(), [totalPlayTime](TKPlayList playList) -> bool
+			{
+				return playList.GetTotalPlayTime() != totalPlayTime;
+			}), this->m_patterns.end());
+
+		std::vector<TKPlayList> specificPattern(this->m_patterns);
+
+		this->m_patterns.clear();
 
 		return specificPattern;
 	}
@@ -673,8 +679,18 @@ int main()
 	playList.AddSong(TKSong(1, 2));
 	
 	TKPlayListShuffler shuffler(playList);
+	std::vector<TKPlayList> result;
+	int a(0), b(0);
 
-	auto result(shuffler.PatternWithTotalPlayTime(4));
+	std::cout << "range: ";
+	std::cin >> a >> b;
+
+	for (; a <= b; a++)
+	{
+		auto patterns(shuffler.PatternWithTotalPlayTime(a));
+
+		result.insert(result.end(), patterns.begin(), patterns.end());
+	}
 
 	std::cout << result.size() << std::endl;
 	std::cout << std::endl;
