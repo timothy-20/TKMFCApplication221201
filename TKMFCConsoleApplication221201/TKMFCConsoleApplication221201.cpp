@@ -108,7 +108,7 @@ public:
 	}
 };
 
-//Linked list 구현 중.
+//Linked songs 구현 중.
 typedef struct __NAMED_NODE
 {
 	uint16_t m_id;
@@ -458,26 +458,6 @@ bool SuffleSong(uint32_t count)
 	return true;
 }
 
-template <typename T, size_t LENGTH>
-void Permutation(T(&list)[LENGTH], int s)
-{
-	if (s == LENGTH)
-	{
-		for (int i(0); i < LENGTH; i++)
-			std::cout << list[i] << ' ';
-
-		std::cout << '\n';
-		return;
-	}
-
-	for (int i(s); i < LENGTH; i++)
-	{
-		std::swap(list[s], list[i]);
-		::Permutation(list, s + 1);
-		std::swap(list[s], list[i]);
-	}
-}
-
 #include <random>
 #include <list>
 
@@ -530,64 +510,226 @@ auto MultiShuffle(const std::vector<T>& list)
 	return result;
 }
 
+struct TKSong
+{
+	uint32_t genre;
+	uint32_t playTime;
+
+	TKSong() = default;
+	TKSong(uint32_t genre, uint32_t playTime) :
+		genre(genre),
+		playTime(playTime)
+	{}
+	TKSong(const TKSong& other) :
+		genre(0),
+		playTime(0)
+	{
+		*this = other;
+	}
+	TKSong(TKSong&& other) noexcept :
+		genre(0),
+		playTime(0)
+	{
+		*this = std::move(other);
+	}
+	TKSong& operator=(const TKSong& other)
+	{
+		if (this != &other)
+		{
+			this->genre = other.genre;
+			this->playTime = other.playTime;
+		}
+
+		return *this;
+	}
+	TKSong& operator=(TKSong&& other)
+	{
+		if (this != &other)
+		{
+			this->genre = std::exchange(other.genre, 0);
+			this->playTime = std::exchange(other.playTime, 0);
+		}
+
+		return *this;
+	}
+};
+
+struct TKPlayList
+{
+private:
+	std::vector<TKSong> m_songs;
+	uint32_t m_totalPlayTime;
+
+public:
+	TKPlayList() :
+		m_songs(std::vector<TKSong>()),
+		m_totalPlayTime(0)
+	{}
+	TKPlayList(std::vector<TKSong> songs) : TKPlayList()
+	{
+		for (auto iterator(songs.cbegin()); iterator != songs.cend(); iterator++)
+			this->AddSong(*iterator);
+	}
+
+	// Utils
+	void AddSong(const TKSong& song)
+	{
+		this->m_songs.push_back(song);
+		this->m_totalPlayTime += song.playTime;
+	}
+	std::vector<TKSong> GetPlayList() const
+	{
+		return this->m_songs;
+	}
+	uint32_t GetTotalPlayTime() const
+	{
+		return this->m_totalPlayTime;
+	}
+};
+
+class TKPlayListShuffler
+{
+private:
+	std::vector<TKSong> m_songs;
+	std::vector<TKPlayList> m_patterns;
+
+	void PlayListPatternsPermutation(int s = 0)
+	{
+		size_t size(this->m_songs.size());
+
+		if (s == size)
+		{
+			this->m_patterns.push_back(this->m_songs);
+			return;
+		}
+
+		for (int i(s); i < size; i++)
+		{
+			std::swap(this->m_songs[s], this->m_songs[i]);
+			this->PlayListPatternsPermutation(s + 1);
+			std::swap(this->m_songs[s], this->m_songs[i]);
+		}
+	}
+
+
+	void PlayListPatternsCombination(std::vector<TKSong> combination, int index = 0, int depth = 0)
+	{
+		int r(combination.size());
+
+		if (r == index)
+		{
+			this->m_patterns.push_back(combination);
+			return;
+		}
+
+		for (int i(0); i < this->m_songs.size(); i++)
+		{
+			combination[index] = this->m_songs[i];
+
+			this->PlayListPatternsCombination(combination, index + 1, depth);
+		}
+	}
+
+public:
+	TKPlayListShuffler(const TKPlayList& totalPlayList) : m_songs(totalPlayList.GetPlayList())
+	{
+		int n(2);
+		int maxLength(0);
+		std::vector<TKSong> pattern(n);
+
+		this->PlayListPatternsCombination(pattern);
+
+		for (TKSong element : this->m_songs)
+		{
+			if (element.playTime > maxLength)
+				maxLength = element.playTime;
+		}
+
+		for (int i(1); i <= maxLength; i++)
+		{
+
+		}
+	}
+
+	// Utils
+	std::vector<TKPlayList> PatternWithTotalPlayTime(int totalPlayTime)
+	{
+		std::vector<TKPlayList> specificPattern;
+
+
+
+		return specificPattern;
+	}
+};
+
 int main()
 {
 	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//std::string list[3]{ "timothy", "peco", "lay" };
-	//
-	//::Permutation(list, 0);
+	TKPlayList playList;
 
-	std::vector<std::string> l1{ "A1", "B1", "A2" };
-	//auto result(::FisherYatesShuffle(l1));
-	//::DurstenfeldShuffle(l1);
-	auto result(::MultiShuffle(l1));
+	playList.AddSong(TKSong(0, 2));
+	playList.AddSong(TKSong(0, 3));
+	playList.AddSong(TKSong(1, 2));
+	
+	TKPlayListShuffler shuffler(playList);
 
-	std::cout << "seed: ";
+	auto result(shuffler.PatternWithTotalPlayTime(4));
 
-	for (auto element : l1)
-		std::cout << element << ' ';
-
-	std::cout << "\nresult: ";
-
-	for (auto element : result)
-		std::cout << element << ' ';
+	std::cout << result.size() << std::endl;
+	std::cout << std::endl;
 
 	return 0;
 }
 
-// 22.12.30 test code_20.19 =========================================================================
-//TKForwardList<std::string> list;
+// 23.01.02. test code_15.03 =========================================================================
+//std::vector<std::string> l1{ "A1", "B1", "A2" };
+////auto result(::FisherYatesShuffle(l1));
+////::DurstenfeldShuffle(l1);
+//auto result(::MultiShuffle(l1));
 
-//list.PushForward("timothy");
-//list.PushForward("peco");
-//list.PushForward("lay");
+//std::cout << "seed: ";
+
+//for (auto element : l1)
+//	std::cout << element << ' ';
+
+//std::cout << "\nresult: ";
+
+//for (auto element : result)
+//	std::cout << element << ' ';
+
+// 22.12.30. test code_20.19 =========================================================================
+//TKForwardList<std::string> songs;
+
+//songs.PushForward("timothy");
+//songs.PushForward("peco");
+//songs.PushForward("lay");
 
 // 22.12.30. test code_13.43 =========================================================================
-//TKArrayList<std::string> list(3);
+//TKArrayList<std::string> songs(3);
 
-//TKMeasureTime::PrintWithMicroseconds([&list]() -> void {
+//TKMeasureTime::PrintWithMicroseconds([&songs]() -> void {
 //	// 지정 capacity보다 많은 element를 적재할 경우
-//	list.AddElement("timothy");
-//	list.AddElement("peco");
-//	list.AddElement("ray");
-//	list.AddElement("another one");
+//	songs.AddElement("timothy");
+//	songs.AddElement("peco");
+//	songs.AddElement("ray");
+//	songs.AddElement("another one");
 
 //	// 배열 리스트의 1번에 element를 삽입한 경우.
-//	list.InsertElement(1, "i'm no.2");
+//	songs.InsertElement(1, "i'm no.2");
 
 //	// 지정 capacity보다 많은 element를 삽입한 경우.
-//	list.InsertElement(2, "i'm no.3");
-//	list.InsertElement(3, "i'm no.4");
-//	list.InsertElement(4, "i'm no.5");
+//	songs.InsertElement(2, "i'm no.3");
+//	songs.InsertElement(3, "i'm no.4");
+//	songs.InsertElement(4, "i'm no.5");
 
 //	// 특정 위치의 element를 제거한 경우.
-//	list.RemoveElement(2);
+//	songs.RemoveElement(2);
 
 //	std::cout << std::endl;
 //});
 
-//TKMeasureTime::PrintWithMicroseconds([&list]() -> void {
-//	for (int i(0); list[i].compare(""); i++)
-//		std::cout << "result: " << list[i] << std::endl;
+//TKMeasureTime::PrintWithMicroseconds([&songs]() -> void {
+//	for (int i(0); songs[i].compare(""); i++)
+//		std::cout << "result: " << songs[i] << std::endl;
 //});
