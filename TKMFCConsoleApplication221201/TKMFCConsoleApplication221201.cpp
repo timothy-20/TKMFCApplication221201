@@ -478,27 +478,92 @@ void Permutation(T(&list)[LENGTH], int s)
 	}
 }
 
+#include <random>
+#include <list>
+
+template <typename T>
+auto FisherYatesShuffle(const std::vector<T>& list)
+{
+	std::vector<T> result(list.size());
+	std::random_device rd;
+	std::mt19937_64 mt(rd());
+	
+	for (auto iterator(result.begin()); iterator != result.end(); iterator++)
+	{
+		std::uniform_int_distribution<int> distribution(0, list.size() - 1);
+		auto point(list.begin() + distribution(mt));
+
+		std::iter_swap(iterator, point);
+		list.erase(point);
+	}
+
+	return result;
+}
+
+template <typename T>
+void DurstenfeldShuffle(std::vector<T>& list)
+{
+	std::random_device rd;
+	std::mt19937_64 mt(rd());
+	int count(list.size());
+
+	for (int i(1); i <= list.size(); i++)
+	{
+		std::uniform_int_distribution<int> distribution(0, --count);
+		auto point(list.begin() + distribution(mt));
+
+		std::iter_swap(point, list.end() - i);
+	}
+}
+
+template <typename T>
+auto MultiShuffle(const std::vector<T>& list)
+{
+	std::vector<T> result(list.size());
+	std::random_device rd;
+	std::mt19937_64 mt(rd());
+	std::uniform_int_distribution<int> distribution(0, list.size() - 1);
+
+	for (auto iterator(result.begin()); iterator != result.end(); iterator++)
+		*iterator = list[distribution(mt)];
+
+	return result;
+}
+
 int main()
 {
 	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	std::string list[3]{ "timothy", "peco", "lay" };
-	
-	::Permutation(list, 0);
+	//std::string list[3]{ "timothy", "peco", "lay" };
+	//
+	//::Permutation(list, 0);
 
+	std::vector<std::string> l1{ "A1", "B1", "A2" };
+	//auto result(::FisherYatesShuffle(l1));
+	//::DurstenfeldShuffle(l1);
+	auto result(::MultiShuffle(l1));
 
+	std::cout << "seed: ";
+
+	for (auto element : l1)
+		std::cout << element << ' ';
+
+	std::cout << "\nresult: ";
+
+	for (auto element : result)
+		std::cout << element << ' ';
 
 	return 0;
 }
 
-// 22.12.30 test code_20.19
+// 22.12.30 test code_20.19 =========================================================================
 //TKForwardList<std::string> list;
 
 //list.PushForward("timothy");
 //list.PushForward("peco");
 //list.PushForward("lay");
 
-// 22.12.30. test code_13.43
+// 22.12.30. test code_13.43 =========================================================================
 //TKArrayList<std::string> list(3);
 
 //TKMeasureTime::PrintWithMicroseconds([&list]() -> void {
