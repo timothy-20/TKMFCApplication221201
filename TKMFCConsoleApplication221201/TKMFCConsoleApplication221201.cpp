@@ -399,65 +399,6 @@ void GetAdjacencyMatrix(int node, int edge)
 		delete adj[i];
 }
 
-bool SuffleSong(uint32_t count)
-{
-	if (count > 1000)
-		return false;
-
-	// 곡 정보
-	std::vector<std::pair<uint32_t, uint32_t>> songInfo;
-
-	for (int i(0); i < count; i++)
-	{
-		uint32_t genreNumber(0), songLength(0);
-
-		std::cin >> genreNumber >> songLength;
-		
-		songInfo.push_back(std::make_pair(genreNumber, songLength));
-	}
-
-	// 장르 갯수
-	uint32_t genreLength(0);
-
-	std::cin >> genreLength;
-
-	if (genreLength > 9)
-		return false;
-
-	uint32_t** adj = nullptr;
-
-	for (int i(0); i < genreLength; i++)
-		adj[i] = new uint32_t;
-
-	for (int i(0); i < genreLength; i++)
-	{
-		char* code(new char);
-	
-		std::cin >> code;
-
-		for (int j(0); code[j] == '\0'; j++)
-		{
-			if (code[j] == 'Y')
-				adj[i][j] = 1;
-
-			else if (code[j] == 'N')
-				adj[i][j] = 0;
-		}
-	}
-
-	// 범주
-	uint32_t n1(0), n2(0);
-
-	std::cin >> n1 >> n2;
-
-	if (n2 < n1 || n2 > 1000000000)
-		return false;
-
-
-
-	return true;
-}
-
 #include <random>
 #include <list>
 
@@ -627,23 +568,14 @@ private:
 		}
 	}
 
+	void MakeRandomPlayCondition()
+	{
+
+	}
+
 public:
 	TKPlayListShuffler(const TKPlayList& totalPlayList) : m_songs(totalPlayList.GetPlayList())
-	{
-		
-
-
-
-		for (auto playList : this->m_patterns)
-		{
-			std::cout << "Play list: " << std::endl;
-
-			for (auto song : playList.GetPlayList())
-				std::cout << song.genre << ' ' << song.playTime << std::endl;
-
-			std::cout << '\n';
-		}
-	}
+	{}
 
 	// Utils
 	std::vector<TKPlayList> PatternWithTotalPlayTime(int totalPlayTime)
@@ -666,7 +598,51 @@ public:
 
 		return specificPattern;
 	}
+
+	// 테스트 용 함수
+	void PrintAllPatterns()
+	{
+		for (auto playList : this->m_patterns)
+		{
+			std::cout << "Play list: " << std::endl;
+
+			for (auto song : playList.GetPlayList())
+				std::cout << song.genre << ' ' << song.playTime << std::endl;
+
+			std::cout << '\n';
+		}
+	}
 };
+
+void Run()
+{
+	//int songsNumber;
+
+	//std::cout << "Number of songs: ";
+	//std::cin >> songsNumber;
+
+	//for (int i; i < songsNumber; i++)
+	//{
+	//	int n1, n2;
+
+	//	std::cout << " Genre and length: ";
+	//	std::cin >> n1 >> n2;
+
+	//}
+
+	//std::vector<TKPlayList> result;
+	//int a, b;
+
+	//std::cout << "range: ";
+	//std::cin >> a >> b;
+
+	//for (; a <= b; a++)
+	//{
+	//	auto patterns(shuffler.PatternWithTotalPlayTime(a));
+
+	//	result.insert(result.end(), patterns.begin(), patterns.end());
+	//}
+}
 
 int main()
 {
@@ -680,7 +656,7 @@ int main()
 	
 	TKPlayListShuffler shuffler(playList);
 	std::vector<TKPlayList> result;
-	int a(0), b(0);
+	int a, b;
 
 	std::cout << "range: ";
 	std::cin >> a >> b;
