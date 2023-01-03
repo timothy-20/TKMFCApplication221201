@@ -364,43 +364,9 @@ public:
 	}
 };
 
-void GetAdjacencyMatrix(int node, int edge)
-{
-	int* adj[100];
-
-	for (int i(0); i < 100; i++)
-		adj[i] = new int[100];
-
-	for (int i(0); i < edge; i++)
-	{
-		int n1(0), n2(0);
-
-		std::cout << "insert coordinates: ";
-		std::cin >> n1 >> n2;
-
-		adj[n1][n2] = 1;
-		adj[n2][n1] = 1;
-	}
-
-	for (int i(0); i < node; i++)
-	{
-		for (int j(0); j < node; j++)
-		{
-			if (adj[i][j] != 1)
-				adj[i][j] = 0;
-
-			std::cout << adj[i][j] << " ";
-		}
-
-		std::cout << '\n';
-	}
-
-	for (int i(0); i < 100; i++)
-		delete adj[i];
-}
-
 #include <random>
 #include <list>
+#include <map>
 
 template <typename T>
 auto FisherYatesShuffle(const std::vector<T>& list)
@@ -528,13 +494,16 @@ public:
 	}
 };
 
+using TKAdjacencyMatrix = std::vector<std::vector<bool>>;
+
 class TKPlayListShuffler
 {
 private:
 	std::vector<TKSong> m_songs;
 	std::vector<TKPlayList> m_patterns;
+	TKAdjacencyMatrix m_matrix;
 
-	void PlayListPatternsPermutation(int s = 0)
+	void CreatePlayListPatternsPermutation(int s = 0)
 	{
 		size_t size(this->m_songs.size());
 
@@ -547,12 +516,12 @@ private:
 		for (int i(s); i < size; i++)
 		{
 			std::swap(this->m_songs[s], this->m_songs[i]);
-			this->PlayListPatternsPermutation(s + 1);
+			this->CreatePlayListPatternsPermutation(s + 1);
 			std::swap(this->m_songs[s], this->m_songs[i]);
 		}
 	}
 
-	void PlayListPatternsCombination(std::vector<TKSong> combination, int index = 0)
+	void CreatePlayListPatternsCombination(std::vector<TKSong> combination, int index = 0)
 	{
 		if (combination.size() == index)
 		{
@@ -564,13 +533,58 @@ private:
 		{
 			combination[index] = this->m_songs[i];
 
-			this->PlayListPatternsCombination(combination, index + 1);
+			this->CreatePlayListPatternsCombination(combination, index + 1);
 		}
 	}
 
-	void MakeRandomPlayCondition()
+	void GetAdjacencyMatrix(int node, int edge)
 	{
+		int* adj[100];
 
+		for (int i(0); i < 100; i++)
+			adj[i] = new int[100];
+
+		for (int i(0); i < edge; i++)
+		{
+			int n1(0), n2(0);
+
+			std::cout << "insert coordinates: ";
+			std::cin >> n1 >> n2;
+
+			adj[n1][n2] = 1;
+			adj[n2][n1] = 1;
+		}
+
+		for (int i(0); i < node; i++)
+		{
+			for (int j(0); j < node; j++)
+			{
+				if (adj[i][j] != 1)
+					adj[i][j] = 0;
+
+				std::cout << adj[i][j] << " ";
+			}
+
+			std::cout << '\n';
+		}
+
+		for (int i(0); i < 100; i++)
+			delete adj[i];
+	}
+
+	void CreatePlayListAvailablePattern(uint32_t node, uint32_t edge, std::pair<uint32_t, std::vector<bool>> path)
+	{
+		uint32_t depth(path.first);
+		int index(0);
+		auto iterator(path.second.begin());
+
+		while (iterator != path.second.cend())
+		{
+			this->m_matrix[depth][index] = *iterator;
+
+			index++;
+			iterator++;
+		}
 	}
 
 public:
@@ -584,7 +598,7 @@ public:
 		{
 			std::vector<TKSong> pattern(i);
 
-			this->PlayListPatternsCombination(pattern);
+			this->CreatePlayListPatternsCombination(pattern);
 		}
 
 		this->m_patterns.erase(std::remove_if(this->m_patterns.begin(), this->m_patterns.end(), [totalPlayTime](TKPlayList playList) -> bool
@@ -642,6 +656,12 @@ void Run()
 
 	//	result.insert(result.end(), patterns.begin(), patterns.end());
 	//}
+}
+
+// DFS(Depth-First Search)
+void SearchWithDFS()
+{
+
 }
 
 int main()
