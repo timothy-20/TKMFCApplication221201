@@ -367,6 +367,7 @@ public:
 #include <random>
 #include <list>
 #include <map>
+#include <set>
 
 template <typename T>
 auto FisherYatesShuffle(const std::vector<T>& list)
@@ -449,7 +450,7 @@ struct TKSong
 
 		return *this;
 	}
-	TKSong& operator=(TKSong&& other)
+	TKSong& operator=(TKSong&& other) noexcept
 	{
 		if (this != &other)
 		{
@@ -484,7 +485,7 @@ public:
 		this->m_songs.push_back(song);
 		this->m_totalPlayTime += song.playTime;
 	}
-	std::vector<TKSong> GetPlayList() const
+	std::vector<TKSong> GetSongs() const
 	{
 		return this->m_songs;
 	}
@@ -494,14 +495,11 @@ public:
 	}
 };
 
-using TKAdjacencyMatrix = std::vector<std::vector<bool>>;
-
 class TKPlayListShuffler
 {
 private:
 	std::vector<TKSong> m_songs;
 	std::vector<TKPlayList> m_patterns;
-	TKAdjacencyMatrix m_matrix;
 
 	void CreatePlayListPatternsPermutation(int s = 0)
 	{
@@ -537,62 +535,55 @@ private:
 		}
 	}
 
-	void GetAdjacencyMatrix(int node, int edge)
+	bool CheckPlayListAvailablePattern(const TKPlayList& playList)
 	{
-		int* adj[100];
+		std::set<uint32_t> temp;
 
-		for (int i(0); i < 100; i++)
-			adj[i] = new int[100];
-
-		for (int i(0); i < edge; i++)
+		for (auto song : this->m_songs)
 		{
-			int n1(0), n2(0);
-
-			std::cout << "insert coordinates: ";
-			std::cin >> n1 >> n2;
-
-			adj[n1][n2] = 1;
-			adj[n2][n1] = 1;
+			if (temp.find(song.genre) != temp.end())
+				temp.insert(song.genre);
 		}
 
-		for (int i(0); i < node; i++)
+		std::vector<std::vector<uint32_t>> matrix(temp.size(), std::vector<uint32_t>(temp.size()));
+
+		for (int i(0); i < matrix.size(); i++)
 		{
-			for (int j(0); j < node; j++)
+			std::string adjacencyVector;
+
+			std::cout << "Insert adjacency vector: ";
+			std::cin >> adjacencyVector;
+
+			for (int j(0); adjacencyVector[j] != '\0'; j++)
 			{
-				if (adj[i][j] != 1)
-					adj[i][j] = 0;
-
-				std::cout << adj[i][j] << " ";
+				if (adjacencyVector[j] == 'Y')
+					matrix[i].push_back(j);
 			}
-
-			std::cout << '\n';
 		}
 
-		for (int i(0); i < 100; i++)
-			delete adj[i];
-	}
+		bool result(false);
+		auto songs(playList.GetSongs());
 
-	void CreatePlayListAvailablePattern(uint32_t node, uint32_t edge, std::pair<uint32_t, std::vector<bool>> path)
-	{
-		uint32_t depth(path.first);
-		int index(0);
-		auto iterator(path.second.begin());
+		if (songs.size() == 1)
+			return true;
 
-		while (iterator != path.second.cend())
+		for (int i(0); i < songs.size() - 1; i++)
 		{
-			this->m_matrix[depth][index] = *iterator;
-
-			index++;
-			iterator++;
+			std::vector<uint32_t> vector(matrix[songs[i].genre]);
+			result = (std::count(vector.cbegin(), vector.cend(), songs[i + 1].genre) == 1);
 		}
+
+		return result;
 	}
 
 public:
-	TKPlayListShuffler(const TKPlayList& totalPlayList) : m_songs(totalPlayList.GetPlayList())
+	TKPlayListShuffler(const TKPlayList& totalPlayList) : 
+		m_songs(totalPlayList.GetSongs()),
+		m_patterns(std::vector<TKPlayList>())
 	{}
 
 	// Utils
-	std::vector<TKPlayList> PatternWithTotalPlayTime(int totalPlayTime)
+	std::vector<TKPlayList> CreatePatternWithTotalPlayTime(int totalPlayTime)
 	{
 		for (int i(1); i < this->m_songs.size(); i++)
 		{
@@ -601,9 +592,13 @@ public:
 			this->CreatePlayListPatternsCombination(pattern);
 		}
 
-		this->m_patterns.erase(std::remove_if(this->m_patterns.begin(), this->m_patterns.end(), [totalPlayTime](TKPlayList playList) -> bool
+		this->m_patterns.erase(std::remove_if(this->m_patterns.begin(), this->m_patterns.end(), [this, totalPlayTime](TKPlayList playList) -> bool
 			{
-				return playList.GetTotalPlayTime() != totalPlayTime;
+				if (playList.GetTotalPlayTime() == totalPlayTime)
+					return !this->CheckPlayListAvailablePattern(playList);
+
+				return true;
+
 			}), this->m_patterns.end());
 
 		std::vector<TKPlayList> specificPattern(this->m_patterns);
@@ -620,7 +615,7 @@ public:
 		{
 			std::cout << "Play list: " << std::endl;
 
-			for (auto song : playList.GetPlayList())
+			for (auto song : playList.GetSongs())
 				std::cout << song.genre << ' ' << song.playTime << std::endl;
 
 			std::cout << '\n';
@@ -664,6 +659,8 @@ void SearchWithDFS()
 
 }
 
+
+
 int main()
 {
 	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -683,7 +680,7 @@ int main()
 
 	for (; a <= b; a++)
 	{
-		auto patterns(shuffler.PatternWithTotalPlayTime(a));
+		auto patterns(shuffler.CreatePatternWithTotalPlayTime(a));
 
 		result.insert(result.end(), patterns.begin(), patterns.end());
 	}
