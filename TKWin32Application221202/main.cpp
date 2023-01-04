@@ -110,8 +110,6 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 	{
 	case WM_CREATE:
 	{
-		// frame size: { 10, 20, (frame.width - 20), 50 }
-
 		TKCustomMenu::SetMenu(hWnd);
 		TKTextField titleTextField({ 10, 20, 620, 50 });
 

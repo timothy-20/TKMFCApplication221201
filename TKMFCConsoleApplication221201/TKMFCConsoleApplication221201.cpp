@@ -4,10 +4,15 @@
 #include <stdarg.h>
 #include <iostream>
 #include <crtdbg.h>
-#include <vector>
 #include <functional>
 #include <algorithm>
 #include <utility>
+#include <random>
+#include <vector>
+#include <list>
+#include <map>
+#include <set>
+#include <Windows.h>
 
 //#ifdef _DEBUG
 //	#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -270,7 +275,6 @@ struct TKRegularCopare { bool operator()(int n1, int n2) { return (n1 > n2); } }
 struct TKReverceCompare { bool operator()(int n1, int n2) { return (n1 < n2); } };
 
 // Memory pool implementation
-#include <Windows.h>
 template <typename T, int ALLOC_BLOCK_SIZE = 50>
 class TKMemoryPool
 {
@@ -364,11 +368,6 @@ public:
 	}
 };
 
-#include <random>
-#include <list>
-#include <map>
-#include <set>
-
 template <typename T>
 auto FisherYatesShuffle(const std::vector<T>& list)
 {
@@ -417,6 +416,19 @@ auto MultiShuffle(const std::vector<T>& list)
 
 	return result;
 }
+
+// DFS(Depth-First Search)
+void SearchWithDFS()
+{
+
+}
+
+// 23.01.04 - baekjoon 1123
+#include <iostream>
+#include <vector>
+#include <set>
+#include <utility>
+#include <algorithm>
 
 struct TKSong
 {
@@ -500,6 +512,8 @@ class TKPlayListShuffler
 private:
 	std::vector<TKSong> m_songs;
 	std::vector<TKPlayList> m_patterns;
+	std::vector<std::vector<uint32_t>> m_adjacentList;
+	
 
 	void CreatePlayListPatternsPermutation(int s = 0)
 	{
@@ -537,30 +551,6 @@ private:
 
 	bool CheckPlayListAvailablePattern(const TKPlayList& playList)
 	{
-		std::set<uint32_t> temp;
-
-		for (auto song : this->m_songs)
-		{
-			if (temp.find(song.genre) != temp.end())
-				temp.insert(song.genre);
-		}
-
-		std::vector<std::vector<uint32_t>> matrix(temp.size(), std::vector<uint32_t>(temp.size()));
-
-		for (int i(0); i < matrix.size(); i++)
-		{
-			std::string adjacencyVector;
-
-			std::cout << "Insert adjacency vector: ";
-			std::cin >> adjacencyVector;
-
-			for (int j(0); adjacencyVector[j] != '\0'; j++)
-			{
-				if (adjacencyVector[j] == 'Y')
-					matrix[i].push_back(j);
-			}
-		}
-
 		bool result(false);
 		auto songs(playList.GetSongs());
 
@@ -569,7 +559,7 @@ private:
 
 		for (int i(0); i < songs.size() - 1; i++)
 		{
-			std::vector<uint32_t> vector(matrix[songs[i].genre]);
+			std::vector<uint32_t> vector(this->m_adjacentList[songs[i].genre]);
 			result = (std::count(vector.cbegin(), vector.cend(), songs[i + 1].genre) == 1);
 		}
 
@@ -580,17 +570,36 @@ public:
 	TKPlayListShuffler(const TKPlayList& totalPlayList) : 
 		m_songs(totalPlayList.GetSongs()),
 		m_patterns(std::vector<TKPlayList>())
-	{}
+	{
+		std::set<uint32_t> temp;
+
+		for (auto song : this->m_songs)
+		{
+			if (temp.find(song.genre) == temp.end())
+				temp.insert(song.genre);
+		}
+
+		this->m_adjacentList = std::vector<std::vector<uint32_t>>(temp.size());
+
+		for (int i(0); i < this->m_adjacentList.size(); i++)
+		{
+			std::string adjacencyVector;
+
+			std::cin >> adjacencyVector;
+
+			for (int j(0); adjacencyVector[j] != '\0'; j++)
+			{
+				if (adjacencyVector[j] == 'Y')
+					this->m_adjacentList[i].push_back(j);
+			}
+		}
+	}
 
 	// Utils
 	std::vector<TKPlayList> CreatePatternWithTotalPlayTime(int totalPlayTime)
 	{
 		for (int i(1); i < this->m_songs.size(); i++)
-		{
-			std::vector<TKSong> pattern(i);
-
-			this->CreatePlayListPatternsCombination(pattern);
-		}
+			this->CreatePlayListPatternsCombination(std::vector<TKSong>(i));
 
 		this->m_patterns.erase(std::remove_if(this->m_patterns.begin(), this->m_patterns.end(), [this, totalPlayTime](TKPlayList playList) -> bool
 			{
@@ -607,75 +616,31 @@ public:
 
 		return specificPattern;
 	}
-
-	// 테스트 용 함수
-	void PrintAllPatterns()
-	{
-		for (auto playList : this->m_patterns)
-		{
-			std::cout << "Play list: " << std::endl;
-
-			for (auto song : playList.GetSongs())
-				std::cout << song.genre << ' ' << song.playTime << std::endl;
-
-			std::cout << '\n';
-		}
-	}
 };
 
 void Run()
 {
-	//int songsNumber;
-
-	//std::cout << "Number of songs: ";
-	//std::cin >> songsNumber;
-
-	//for (int i; i < songsNumber; i++)
-	//{
-	//	int n1, n2;
-
-	//	std::cout << " Genre and length: ";
-	//	std::cin >> n1 >> n2;
-
-	//}
-
-	//std::vector<TKPlayList> result;
-	//int a, b;
-
-	//std::cout << "range: ";
-	//std::cin >> a >> b;
-
-	//for (; a <= b; a++)
-	//{
-	//	auto patterns(shuffler.PatternWithTotalPlayTime(a));
-
-	//	result.insert(result.end(), patterns.begin(), patterns.end());
-	//}
-}
-
-// DFS(Depth-First Search)
-void SearchWithDFS()
-{
-
-}
-
-
-
-int main()
-{
-	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
 	TKPlayList playList;
+	int songsNumber;
 
-	playList.AddSong(TKSong(0, 2));
-	playList.AddSong(TKSong(0, 3));
-	playList.AddSong(TKSong(1, 2));
-	
+	std::cin >> songsNumber;
+
+	for (int i(0); i < songsNumber; i++)
+	{
+		int n1, n2;
+
+		std::cin >> n1 >> n2;
+		playList.AddSong(TKSong(n1, n2));
+	}
+
+	int genreNumber;
+
+	std::cin >> genreNumber;
+
 	TKPlayListShuffler shuffler(playList);
 	std::vector<TKPlayList> result;
 	int a, b;
 
-	std::cout << "range: ";
 	std::cin >> a >> b;
 
 	for (; a <= b; a++)
@@ -686,10 +651,40 @@ int main()
 	}
 
 	std::cout << result.size() << std::endl;
-	std::cout << std::endl;
+}
+
+int main()
+{
+	::Run();
 
 	return 0;
 }
+
+//::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
+// 23.01.04. test code_12.14 =========================================================================
+//TKPlayList playList;
+
+//playList.AddSong(TKSong(0, 2));
+//playList.AddSong(TKSong(0, 3));
+//playList.AddSong(TKSong(1, 2));
+//
+//TKPlayListShuffler shuffler(playList);
+//std::vector<TKPlayList> result;
+//int a, b;
+
+//std::cout << "range: ";
+//std::cin >> a >> b;
+
+//for (; a <= b; a++)
+//{
+//	auto patterns(shuffler.CreatePatternWithTotalPlayTime(a));
+
+//	result.insert(result.end(), patterns.begin(), patterns.end());
+//}
+
+//std::cout << result.size() << std::endl;
+//std::cout << std::endl;
 
 // 23.01.02. test code_15.03 =========================================================================
 //std::vector<std::string> l1{ "A1", "B1", "A2" };
