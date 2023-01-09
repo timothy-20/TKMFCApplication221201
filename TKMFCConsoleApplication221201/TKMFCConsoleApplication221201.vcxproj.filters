@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="헤더 파일\beakjoon">
+      <UniqueIdentifier>{4f38e4de-7654-4c1d-946d-d778cd0ff887}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TKMFCConsoleApplication221201.cpp">
@@ -52,6 +55,9 @@
     </ClInclude>
     <ClInclude Include="TKTime.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="TKBeakjoon1123_1.h">
+      <Filter>헤더 파일\beakjoon</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

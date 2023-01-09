@@ -136,6 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TKArrayList.hpp" />
+    <ClInclude Include="TKBeakjoon1123_1.h" />
     <ClInclude Include="TKDummyList.h" />
     <ClInclude Include="TKMeasureTime.h" />
     <ClInclude Include="TKNumberUtil.h" />
