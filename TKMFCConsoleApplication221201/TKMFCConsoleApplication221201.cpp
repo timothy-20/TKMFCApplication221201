@@ -448,24 +448,128 @@ int GetFibbonacciWithMemoization(int n)
 	return g_arr[n];
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include <iostream>
+
+class TKStack
+{
+private:
+	int* m_bucket;
+	int m_size;
+
+public:
+	TKStack() :
+		m_bucket(new int),
+		m_size(0)
+	{}
+	~TKStack()
+	{
+		if (this->m_size > 0)
+		{
+			while (this->m_size--)
+				this->m_bucket[this->m_size] = 0;
+		}
+
+		delete[] this->m_bucket;
+		this->m_size = 0;
+	}
+
+	void Push(int value)
+	{
+		this->m_bucket[this->m_size++] = value;
+	}
+	int Pop()
+	{
+		int result(this->m_bucket[--this->m_size]);
+
+		this->m_bucket[this->m_size] = 0;
+		
+
+		if (result == 0)
+			return -1;
+
+		this->m_bucket[this->m_size] = 0;
+		this->m_size--;
+
+		return result;
+	}
+	int Size()
+	{
+		return this->m_size;
+	}
+	int Empty()
+	{
+		return this->m_size > 0 ? 1 : 0;
+	}
+	int Top()
+	{
+		return &this->m_bucket[this->m_size - 1] != nullptr ? this->m_bucket[this->m_size - 1] : -1;
+	}
+};
+
 int main()
 {
 	::_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	TKMeasureTime::PrintWithMicroseconds([]() -> void
-		{
-			std::cout << "result: " << ::GetFibbonacci(12) << std::endl;
-		});
+	/*TKStack stack;
+	int n(0);
+	std::cin >> n;
 
-	TKMeasureTime::PrintWithMicroseconds([]() -> void
-		{
-			std::cout << "result: " << ::GetFibbonacciWithMemoization(12) << std::endl;
-		});
+	while (n--)
+	{
+		std::string query("");
+		int value(0);
+		int result(0);
 
+		std::cin >> query;
+
+		if (query.compare("push") == 0)
+		{
+			std::cin >> value;
+			stack.Push(value);
+		} 
+		else if (query.compare("pop") == 0)
+			std::cout << stack.Pop() << '\n';
+
+		else if (query.compare("size") == 0)
+			std::cout << stack.Size() << '\n';
+
+		else if (query.compare("empty") == 0)
+			std::cout << stack.Empty() << '\n';
+
+		else if (query.compare("top") == 0)
+			std::cout << stack.Top() << '\n';
+	}*/
+
+	int* pNumber(new int[10]);
+	pNumber[0] = 1;
+	pNumber[1] = 2;
+	pNumber[1] = -1;
+
+	int* temp(pNumber);
+
+	while (*temp >= 0)
+	{
+		std::cout << *temp << std::endl;
+		temp++;
+	}
+
+	delete[] pNumber;
+	
 	return 0;
 }
-
-
 
 // 23.01.04. test code_12.14 =========================================================================
 //TKPlayList playList;
