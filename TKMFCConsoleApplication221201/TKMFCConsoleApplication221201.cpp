@@ -460,87 +460,12 @@ int GetFibbonacciWithMemoization(int n)
 
 
 
-
-#include <iostream>
-
-class TKStack
-{
-private:
-	int* m_bucket;
-	int m_size;
-
-public:
-	TKStack() :
-		m_bucket(new int),
-		m_size(0)
-	{}
-	~TKStack()
-	{
-		delete this->m_bucket;
-		this->m_size = 0;
-	}
-
-	void Push(int value)
-	{
-		this->m_bucket[this->m_size++] = value;
-	}
-	int Pop()
-	{
-		int result(this->m_bucket[this->m_size - 1]);
-
-		if (result < 0)
-			return -1;
-
-		this->m_bucket[--this->m_size] = -1;
-		
-		return result;
-	}
-	int Size()
-	{
-		return this->m_size;
-	}
-	int Empty()
-	{
-		return this->m_size > 0 ? 0 : 1;
-	}
-	int Top()
-	{
-		return this->m_bucket[this->m_size - 1] > 0 ? this->m_bucket[this->m_size - 1] : -1;
-	}
-};
-
 int main()
 {
-	TKStack stack;
-	int n(0);
-	std::cin >> n;
+	std::ios_base::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+	std::cout.tie(nullptr);
 
-	while (n--)
-	{
-		std::string query("");
-		int value(0);
-		int result(0);
-
-		std::cin >> query;
-
-		if (query.compare("push") == 0)
-		{
-			std::cin >> value;
-			stack.Push(value);
-		} 
-		else if (query.compare("pop") == 0)
-			std::cout << stack.Pop() << '\n';
-
-		else if (query.compare("size") == 0)
-			std::cout << stack.Size() << '\n';
-
-		else if (query.compare("empty") == 0)
-			std::cout << stack.Empty() << '\n';
-
-		else if (query.compare("top") == 0)
-			std::cout << stack.Top() << '\n';
-	}
-	
 	return 0;
 }
 
